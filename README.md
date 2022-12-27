@@ -1,2 +1,2 @@
 # UNO_Game
-An online game of UNO (side project)
+An online game of UNO (side project - work in progress)
