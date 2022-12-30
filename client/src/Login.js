@@ -6,10 +6,22 @@ class LoginForm extends Component {
     constructor(props){
         super(props);
         this.state = {
-            onLogin: true
         }
         this.handleLoginQuery = this.handleLoginQuery.bind(this);
         
+    }
+
+    componentDidMount(){
+        const socket = this.props.socket;
+        socket.on("LoginSuccess",function(){
+            console.log('WE LOGGED IN!');
+        });
+        socket.on("LoginFailure",function(){
+            console.log("NOOOOOOOO WRONG PASSWORD");
+        });
+        socket.on("NoUser",function(){
+            console.log("AWW MAN THIS USER DOESN'T EXIST");
+        });
     }
 
     handleLoginQuery(){
@@ -17,15 +29,6 @@ class LoginForm extends Component {
         const User = document.getElementById("LoginUser").value;
         const Password =  document.getElementById("LoginPass").value;
         socket.emit("LoginUser",{username: User, password: Password});
-        socket.once("LoginSuccess",function(){
-            console.log('WE LOGGED IN!');
-        });
-        socket.once("LoginFailure",function(){
-            console.log("NOOOOOOOO WRONG PASSWORD");
-        });
-        socket.once("NoUser",function(){
-            console.log("AWW MAN THIS USER DOESN'T EXIST");
-        });
     }
 
     render(){
