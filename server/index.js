@@ -7,11 +7,13 @@ const bcrypt = require('bcrypt');
 const PORT = process.env.PORT || 3456;
 
 var con = mysql.createConnection({
-  host: "localhost",
+  host: "127.0.0.1",
   user: "root",
   password: "UnoGameProjectPass",
   database: "UNO_Game"
 });
+
+console.log(con.state);
 
 const io = require("socket.io")(http, {
   cors:{
@@ -64,7 +66,7 @@ io.on('connection', function(socket){
       let search = "SELECT username FROM users WHERE username = " + mysql.escape(data['username']);
       let rowcount;
       con.query(search, function(err, result){
-        if(err){return console.error(error.message)};
+        if(err) throw err;
         rowcount = result.length;
         if(rowcount == 0){
           let sql = 'INSERT INTO users (username, password) VALUES ?';

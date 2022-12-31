@@ -6,21 +6,32 @@ class LoginForm extends Component {
     constructor(props){
         super(props);
         this.state = {
+            LoginState: ''
         }
         this.handleLoginQuery = this.handleLoginQuery.bind(this);
         
     }
 
     componentDidMount(){
+        var self = this;
         const socket = this.props.socket;
         socket.on("LoginSuccess",function(){
             console.log('WE LOGGED IN!');
+            self.setState({
+                LoginState: "WE LOGGED IN!"
+            })
         });
         socket.on("LoginFailure",function(){
             console.log("NOOOOOOOO WRONG PASSWORD");
+            self.setState({
+                LoginState: "NOOOOOOOO WRONG PASSWORD"
+            })
         });
         socket.on("NoUser",function(){
             console.log("AWW MAN THIS USER DOESN'T EXIST");
+             self.setState({
+                LoginState: "AWW MAN THIS USER DOESN'T EXIST"
+            })
         });
     }
 
@@ -41,7 +52,8 @@ class LoginForm extends Component {
                 </h2>
                 <input type = "submit" value = "Login" onClick={this.handleLoginQuery}/> 
                 <br/><br/> Don't have an account? <a href='/SignUp'> Sign Up </a>
-                <br/> 
+                <br/><br/>
+                <div id="LoginState">{this.state.LoginState}</div> 
             </div>
         );
     }
