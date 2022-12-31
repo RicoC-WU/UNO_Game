@@ -11,6 +11,12 @@ The website uses the following libraries:
 
 React - Used to set up components for organizing code
 
-socket.io - Used for performing specific tasks and sowing specific parts of the website to specfici users. For example, displaying a game of UNO to 4 specific clients in the same room. 
+NodeJS - Used for creating server side code
+
+ExpressJS - Used for creating NodeJS backend
+
+socket.io - Used for performing specific tasks and sowing specific parts of the website to specfici users. For example, displaying a game of UNO to 4 specific clients in the same game. 
 
 MySQL/MariaDB - used to tracking specific user information such as username, password, and win-loss record. While the database used is MariaDB specifically, the MySQL libraray is used for querying instead of the MariaDB library.
+
+bCrpyt - Used for password encryption for security practices
