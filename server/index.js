@@ -2,6 +2,7 @@ const app = require("express")();
 const http = require('http').Server(app);
 const express = require('express');
 const mysql = require('mysql');
+const bcrypt = require('bcrypt');
 
 const PORT = process.env.PORT || 3456;
 
@@ -12,7 +13,6 @@ var con = mysql.createConnection({
   database: "UNO_Game"
 });
 
-
 const io = require("socket.io")(http, {
   cors:{
     origins: ['localhost:3000','192.168.1.105','rockjc01.hopto.org'],
@@ -20,6 +20,39 @@ const io = require("socket.io")(http, {
     methods: ["GET","POST"],
   }
 });
+
+async function hashPassword(sql,socket,username,textPass){
+  try{
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(textPass, salt);
+    console.log(hashedPassword);
+    let values = [[username,hashedPassword]];
+    con.query(sql,[values],function(err,result){
+      if(err) throw err
+      socket.emit("LoginSuccess");
+    })
+  }catch{
+    console.log("ERROR COULDN'T HASH PASSWORD");
+   
+  }
+}
+
+async function comparePassword(socket,UserInfo,userEnter,textPass){
+  if(UserInfo.length == 0){
+    socket.emit("NoUser");
+  }else{
+    try{
+      const match = await bcrypt.compare(textPass,UserInfo[0].password);
+      if(match && UserInfo[0].username == userEnter){
+        socket.emit("LoginSuccess");
+      }else{
+        socket.emit("LoginFailure");
+      }
+    }catch{
+      console.log("ERROR COULDN'T HASH PASSWORD");
+    }
+  }
+}
    
 
 io.on('connection', function(socket){
@@ -35,18 +68,13 @@ io.on('connection', function(socket){
         rowcount = result.length;
         if(rowcount == 0){
           let sql = 'INSERT INTO users (username, password) VALUES ?';
-          let values = [[data["username"],data["password"]]];
-          con.query(sql,[values],function(err,result){
-            if(err) throw err
-            socket.emit("LoginSuccess");
-          })
+          hashPassword(sql,socket,data["username"],data["password"]);
         }else{
           socket.emit("UserAlreadyExists");
         }
       })
       
     });
-
 
     socket.on("LoginUser",function(data){
       let UserInfo;
@@ -57,21 +85,11 @@ io.on('connection', function(socket){
       con.query(sql, [username], function(err,result){
         if (err) throw err;
         UserInfo = result;
-        if(UserInfo.length == 1){
-          if(UserInfo[0].password == data["password"] && UserInfo[0].username == data["username"]){
-            socket.emit("LoginSuccess");
-          }else{
-            socket.emit("LoginFailure");
-          }
-        }else{
-          socket.emit("NoUser");
-        }
+        comparePassword(socket,UserInfo,data['username'],data["password"]);
       })
     })
 
     socket.on('disconnect', function(){
-        socket.removeAllListeners('send message');
-        socket.removeAllListeners('disconnect');
         console.log(`A client with id ${socket.id} disconnected`);
     });
 });
