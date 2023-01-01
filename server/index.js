@@ -12,12 +12,10 @@ var con = mysql.createConnection({
   password: "UnoGameProjectPass",
   database: "UNO_Game"
 });
-
-console.log(con.state);
-
+[]
 const io = require("socket.io")(http, {
   cors:{
-    origins: ['localhost:3000','192.168.1.105','rockjc01.hopto.org'],
+    origins: ['localhost:3000','192.168.1.105','108.236.64.90','rockjc01.hopto.org'],
     // origin: '*',
     methods: ["GET","POST"],
   }
