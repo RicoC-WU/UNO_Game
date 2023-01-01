@@ -7,7 +7,9 @@ The website for this game can be vidited at the link rockjc01.hopto.org. The Web
 
 WEBSITE FUNCTIONALITY SETUP: 
 
-The website uses the following libraries:
+The website uses the following libraries/tools:
+
+NGINX - Used to set up the website server on the Raspberry Pi.
 
 React - Used to set up components for organizing code
 
