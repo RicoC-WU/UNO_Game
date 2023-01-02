@@ -1,6 +1,8 @@
 # UNO_Game
 An online game of UNO (not finished - work in progress)
 
+LINK TO WEBSITE: rockjc01.hopto.org
+
 WEB SERVER SETUP:
 
 The website for this game can be vidited at the link rockjc01.hopto.org. The Web-server uses NGINX and is deployed from a Raspberry Pi that runs on LinuxOS. The Domain name wascreated using the free tier of NO-IP, mapping a hostname to the dynamic external IP address of the Raspberry Pi. 
@@ -8,8 +10,6 @@ The website for this game can be vidited at the link rockjc01.hopto.org. The Web
 WEBSITE FUNCTIONALITY SETUP: 
 
 The website uses the following libraries/tools:
-
-NGINX - Used to set up the website server on the Raspberry Pi.
 
 React - Used to set up components for organizing code
 
