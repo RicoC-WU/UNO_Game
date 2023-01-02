@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 } */
+
+.Nav nav{
+  display: flex;
+  background-color: gray;
+  color: white;
+}
+
+.Nav nav li{
+  display: inline;
+  margin-left: 30px;
+}

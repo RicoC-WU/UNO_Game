@@ -1,4 +1,3 @@
-import './App.css';
 import { Component } from 'react';
 import 'socket.io-client';
 
@@ -13,18 +12,23 @@ class LoginForm extends Component {
     }
 
     componentDidMount(){
+        if(window.sessionStorage.getItem("UserLogged") !== null){
+            window.location.assign("/");
+        }
         var self = this;
         const socket = this.props.socket;
-        socket.on("LoginSuccess",function(){
+        socket.on("LoginSuccess",function(data){
             console.log('WE LOGGED IN!');
             self.setState({
                 LoginState: "WE LOGGED IN!"
             })
+            window.sessionStorage.setItem("UserLogged",data["username"]);
+            window.location.assign("/");
         });
         socket.on("LoginFailure",function(){
             console.log("NOOOOOOOO WRONG PASSWORD");
             self.setState({
-                LoginState: "NOOOOOOOO WRONG PASSWORD"
+                LoginState: "NOOOOOOOO WRONG PASSWORD"         
             })
         });
         socket.on("NoUser",function(){
@@ -45,15 +49,21 @@ class LoginForm extends Component {
     render(){
         return(
             <div className="LoginForm">
-                <h1>Login</h1>
-                <h2>
-                    Enter Username: <br/><input id="LoginUser" type = "text" name = "username"/> <br/><br/>
-                    Enter Password: <br/><input id="LoginPass" type = "password" name = "password"/>
-                </h2>
-                <input type = "submit" value = "Login" onClick={this.handleLoginQuery}/> 
-                <br/><br/> Don't have an account? <a href='/SignUp'> Sign Up </a>
-                <br/><br/>
-                <div id="LoginState">{this.state.LoginState}</div> 
+                {window.sessionStorage.getItem("UserLogged") === null ?  
+                <>               
+                    <h1>Login</h1>
+                    <h2>
+                        Enter Username: <br/><input id="LoginUser" type = "text" name = "username"/> <br/><br/>
+                        Enter Password: <br/><input id="LoginPass" type = "password" name = "password"/>
+                    </h2>
+                    <input type = "submit" value = "Login" onClick={this.handleLoginQuery}/> 
+                    <br/><br/> Don't have an account? <a href='/SignUp'> Sign Up </a>
+                    <br/><br/>
+                    <div id="LoginState">{this.state.LoginState}</div>  
+                </>
+                : 
+                <></>
+                }
             </div>
         );
     }

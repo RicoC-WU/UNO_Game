@@ -29,7 +29,7 @@ async function hashPassword(sql,socket,username,textPass){
     let values = [[username,hashedPassword]];
     con.query(sql,[values],function(err,result){
       if(err) throw err
-      socket.emit("LoginSuccess");
+      socket.emit("LoginSuccess", {username: username});
     })
   }catch{
     console.log("ERROR COULDN'T HASH PASSWORD");
@@ -44,7 +44,7 @@ async function comparePassword(socket,UserInfo,userEnter,textPass){
     try{
       const match = await bcrypt.compare(textPass,UserInfo[0].password);
       if(match && UserInfo[0].username == userEnter){
-        socket.emit("LoginSuccess");
+        socket.emit("LoginSuccess",{username: userEnter});
       }else{
         socket.emit("LoginFailure");
       }

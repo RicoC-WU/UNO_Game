@@ -1,15 +1,15 @@
 // import logo from './logo.svg';
-import './App.css';
+import './App.css'
 import { Component } from 'react';
-import Nav from './Nav';
-import LoginForm from './Login';
-import Home from './Home';
-import SignUpForm from './SignUp';
+import Nav from './Components/Nav';
+import LoginForm from './Components/Login';
+import Home from './Components/Home';
+import SignUpForm from './Components/SignUp';
+import Game from './Components/Game';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 
 class App extends Component {
   componentDidMount(){
-    
   }
   render(){
     return(
@@ -17,10 +17,10 @@ class App extends Component {
       <div className="App">
         <Nav/>
         <Routes>
-          {/* <Home/> */}
-          <Route path="/" element={<Home/>} />
+          <Route path="/" element={<Home/>}/>
             <Route path="/Login" element={<LoginForm socket={this.props.socket}/>}/>
             <Route path="/SignUp" element={<SignUpForm socket={this.props.socket}/>}/>
+            <Route path="/Game" element={<Game socket={this.props.socket}/>}/>
         </Routes>    
       </div>
       </Router>
