@@ -50,6 +50,7 @@ class SignUpForm extends Component {
     render(){
         return(
             <div className="SignUpForm">
+                <div className='SContainer'>
                 {window.sessionStorage.getItem("UserLogged") === null ?  
                 <>
                     <h1>Sign Up</h1>
@@ -62,11 +63,13 @@ class SignUpForm extends Component {
                     <br/><br/> Already have an account? <a href='/Login'> Login </a>
                     <br/><br/>
                     <div id="SignUpState">{this.state.SignUpState}</div>
+                    <a href='/'> Back Home </a>
                     {/* <br/> <a href='homepage.php'> Back To Home </a> */}
                 </>
                 :
                 <></>
                 }
+                </div>
             </div>
         );
     }

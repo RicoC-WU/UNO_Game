@@ -23,7 +23,7 @@ class Home extends Component {
           :
           <>
             <div>Welcome {this.state.currentUser}!</div>
-            <a href='/' onClick={window.sessionStorage.removeItem("UserLogged")}> Sign Out </a>
+            <a href='/' onClick={()=>window.sessionStorage.removeItem("UserLogged")}> Sign Out </a>
           </>
         }
        

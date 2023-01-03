@@ -5,10 +5,11 @@ class Nav extends Component {
     return(
       <div className='Nav'>
         <nav>
-          <h3>Logo</h3>
+          {/* <h3>Logo</h3> */}
+          <img src='UNO_Logo.png' alt='Logo' height='100'/>
           <ul>
-              <li>About</li>
-              <li>Home</li>
+              <li><b><a href='/About'>About</a></b></li>
+              <li><b><a href='/'>Home</a></b></li>
           </ul>
         </nav>
       </div>

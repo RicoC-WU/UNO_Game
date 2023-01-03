@@ -5,14 +5,15 @@ class LoginForm extends Component {
     constructor(props){
         super(props);
         this.state = {
-            LoginState: ''
+            LoginState: '',
+            UserLogged: window.sessionStorage.getItem("UserLogged")
         }
         this.handleLoginQuery = this.handleLoginQuery.bind(this);
         
     }
 
     componentDidMount(){
-        if(window.sessionStorage.getItem("UserLogged") !== null){
+        if(this.state.UserLogged !== null){
             window.location.assign("/");
         }
         var self = this;
@@ -49,7 +50,8 @@ class LoginForm extends Component {
     render(){
         return(
             <div className="LoginForm">
-                {window.sessionStorage.getItem("UserLogged") === null ?  
+                <div className="LContainer">
+                {this.state.UserLogged === null ?  
                 <>               
                     <h1>Login</h1>
                     <h2>
@@ -60,10 +62,12 @@ class LoginForm extends Component {
                     <br/><br/> Don't have an account? <a href='/SignUp'> Sign Up </a>
                     <br/><br/>
                     <div id="LoginState">{this.state.LoginState}</div>  
+                    <a href='/'> Back Home </a>
                 </>
                 : 
                 <></>
                 }
+                </div>
             </div>
         );
     }

@@ -37,13 +37,57 @@
   }
 } */
 
+.Nav{
+  background-image: linear-gradient(to right, red, orange, yellow, orange, red);
+  color: white;
+  font-family: "Audiowide", sans-serif;
+}
+
 .Nav nav{
   display: flex;
-  background-color: gray;
-  color: white;
 }
 
 .Nav nav li{
   display: inline;
   margin-left: 30px;
+  
 }
+
+.Nav nav a:link{
+  text-decoration: none;
+}
+
+
+.Nav nav a:visited{
+  text-decoration: none;
+}
+
+.Nav nav a:hover{
+  color: red;
+  font-size:larger;
+}
+
+.Nav nav ul{
+  padding-top: 20px;
+}
+
+.LoginForm,.SignUpForm{
+  text-align: center;
+  transform: translate(25%,10%);  
+}
+
+.LoginForm input[type='submit'],.SignUpForm input[type='submit']{
+  color: white;
+  background: black;
+  width: 200px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.LContainer,.SContainer{
+  width:50%;
+  border: solid 2px gray;
+  border-radius: 20px;
+  box-shadow: red;
+}
+
