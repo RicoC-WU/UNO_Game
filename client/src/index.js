@@ -17,10 +17,10 @@ let socket = io('http://localhost:3456');
 
 
 
-socket.on("printSocket",function(data){
-  console.log(data["socketid"]);
-  console.log(socket);
-})
+// socket.on("printSocket",function(data){
+//   console.log(data["socketid"]);
+//   console.log(socket);
+// })
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

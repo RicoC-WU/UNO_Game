@@ -20,9 +20,6 @@ class LoginForm extends Component {
         const socket = this.props.socket;
         socket.on("LoginSuccess",function(data){
             console.log('WE LOGGED IN!');
-            self.setState({
-                LoginState: "WE LOGGED IN!"
-            })
             window.sessionStorage.setItem("UserLogged",data["username"]);
             window.location.assign("/");
         });

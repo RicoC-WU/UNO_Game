@@ -22,3 +22,11 @@ socket.io - Used for performing specific tasks and sowing specific parts of the 
 MySQL/MariaDB - used to tracking specific user information such as username, password, and win-loss record. While the database used is MariaDB specifically, the MySQL libraray is used for querying instead of the MariaDB library.
 
 bCrpyt - Used for password encryption for security practices
+
+
+Sources:
+UNO Logo (\client\public\UNO_Logo.png): https://commons.wikimedia.org/wiki/File:UNO_Logo.svg
+
+UNO Cards: (\client\public\Cards): https://www.textures-resource.com/pc_computer/uno/texture/8671/?source=genre
+
+Home page background: https://store.playstation.com/en-us/product/UP0001-CUSA04071_00-UBSFTUNOULTIMATE

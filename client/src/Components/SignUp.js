@@ -18,9 +18,6 @@ class SignUpForm extends Component {
         const socket = this.props.socket;
         socket.on("LoginSuccess",function(data){
             console.log('LETS GOOO, YOU REGISTERED!');
-            self.setState({
-                SignUpState: "LETS GOOO, YOU REGISTERED!"
-            })
             window.sessionStorage.setItem("UserLogged",data["username"]);
             window.location.assign("/");
         })
