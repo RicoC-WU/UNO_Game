@@ -58,7 +58,10 @@ body{
 
 .LoginForm,.SignUpForm{
   text-align: center;
-  transform: translate(25%,10%);  
+  justify-content: center;
+  display: flex;
+  padding-top: 5%;
+  padding-bottom: 5%;
 }
 
 .LoginForm input[type='submit'],.SignUpForm input[type='submit']{
@@ -114,7 +117,6 @@ body{
   text-align: center;
 }
 
-
 #Login_btn:hover, #SignUp_btn:hover{
   background-color: darkgoldenrod;
 }
@@ -124,4 +126,80 @@ body{
   right: 0;
   padding-top: 5px;
   font-size: 30px;
+}
+
+#bckgr{
+  width:100%;
+  /* height: 100%; */
+}
+@media screen and (min-width: 901px){
+  #bckgr2{
+    display: none;
+  }
+}
+@media screen and (min-width: 801px){
+  #bckgr3{
+    display: none;
+  }
+}
+@media screen and (min-width: 701px){
+  #bckgr4{
+    display: none;
+  }
+}
+@media screen and (min-width: 1501px){
+  #bckgr5{
+    display: none;
+  }
+}
+@media only screen and (max-width: 900px){
+  #bckgr2{
+    display: visible;
+    width: 100%;
+  }
+  #Login_btn, #SignUp_btn{
+    width: max-content;
+    font-size: 40px;
+  }
+}
+@media only screen and (max-width: 800px){
+  #bckgr3{
+    display: visible;
+    width: 100%;
+  }
+  #Login_btn, #SignUp_btn{
+    width: max-content;
+    font-size: 30px;
+  }
+}
+@media only screen and (max-width: 700px){
+  #bckgr4{
+    display: visible;
+    width: 100%;
+  }
+  #Login_btn, #SignUp_btn{
+    width: max-content;
+    font-size: 20px;
+  }
+}
+@media screen and (max-width: 1500px){
+  #bckgr5{
+    display: visible;
+    width: 100%;
+  }
+  #Login_btn, #SignUp_btn{
+    font-size: 60px;
+    width: 80%;
+  }
+
+}
+
+@media only screen and (max-width: 620px){
+  .Nav{
+    font-size: 12px;
+  }
+}
+
+.Footer{
+  background-image: linear-gradient(to top, brown, rgb(168, 92, 0),orange)
 }
