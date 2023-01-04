@@ -56,7 +56,7 @@ async function comparePassword(socket,UserInfo,userEnter,textPass){
    
 
 io.on('connection', function(socket){
-    console.log("A client conencted "+ socket.id);
+    console.log("A client conencted "+socket.id);
    
     socket.emit("printSocket", {socketid: socket.id});
 

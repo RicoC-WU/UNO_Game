@@ -1,3 +1,5 @@
+@import url('https://fonts.cdnfonts.com/css/franklin-gothic');
+
 body{
   height: max-content;
   padding: 0;
@@ -90,11 +92,11 @@ body{
   background-color: gold;
   border: none;
   color: Black;
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family:'Franklin Gothic', sans-serif; 
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
-  font-size: 70px;
+  font-size: 75px;
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 15px;
@@ -104,7 +106,7 @@ body{
 
 #Login_btn_prnt{
   text-align: center;
-  padding-top: 25%;
+  padding-top: 10%;
   padding-bottom: 5px;
 }
 
