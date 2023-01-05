@@ -30,6 +30,9 @@ class SignUpForm extends Component {
     }
 
     handleSignUpQuery(){
+        this.setState({
+            SignUpState: ''
+        })
         var self = this;
         const socket = this.props.socket;
         const newUser = document.getElementById("NewUsername").value;

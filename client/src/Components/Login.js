@@ -38,6 +38,9 @@ class LoginForm extends Component {
     }
 
     handleLoginQuery(){
+        this.setState({
+            LoginState: ''
+        })
         const socket = this.props.socket;
         const User = document.getElementById("LoginUser").value;
         const Password =  document.getElementById("LoginPass").value;

@@ -15,19 +15,19 @@ class Nav extends Component {
   render(){
     return(
       <div className='Nav'>
-        <img src='UNO_Logo.png' alt='Logo' height='100'/>
+        <img src='UNO_Logo.png' id='Logo' alt='Logo' height='100'/>
         <div className="interact">
           {
             (this.state.currentUser === null) && (!document.URL.includes("/Login")) && (!document.URL.includes("/SignUp")) ?  
             <>
               <div className="iconContainer"><a href='/Login'><i className="fa-solid fa-user"></i><span>Login</span></a></div>
-              <div className="iconContainer"><a href='/SignUp'><i className="fa-solid fa-right-to-bracket"></i><span>Sign Up</span></a></div>
+              <div id='SignInIcon' className="iconContainer"><a href='/SignUp'><i className="fa-solid fa-right-to-bracket"></i><span>Sign Up</span></a></div>
             </> 
             : 
             (this.state.currentUser !== null) ?
             <>
             <div id='welcomeuser'>Hello, {this.state.currentUser}!</div>
-            <div className="iconContainer"><a href='/' onClick={()=>window.sessionStorage.removeItem("UserLogged")}><i className="fa-solid fa-arrow-right-from-bracket"></i><span>Sign Out</span></a></div>
+            <div id='SignOutIcon' className="iconContainer"><a href='/' onClick={()=>window.sessionStorage.removeItem("UserLogged")}><i className="fa-solid fa-arrow-right-from-bracket"></i><span>Sign Out</span></a></div>
             </>
             :
             <></>

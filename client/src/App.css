@@ -82,7 +82,6 @@ body{
 .Home{
   height: max-content;
   display: grid;
-  place-items: center;
 }
 
 .HomeContent{
@@ -101,7 +100,7 @@ body{
   text-decoration: none;
   font-size: 75px;
   margin: 4px 2px;
-  margin-left: 25%;
+  /* margin-left: 25%; */
   cursor: pointer;
   border-radius: 15px;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,1), 0 6px 20px 0 rgba(0,0,0,0.19);
@@ -233,19 +232,34 @@ body{
   }
 }
 @media only screen and (max-width: 490px){
-  #Login_btn, #SignUp_btn{
+  .play_btn,#Login_btn, #SignUp_btn{
     margin-top: 80px;
     padding-top: 20px;
+    font-size: 40px;
   }
-  .interact, .interact span{
-    padding-left: 1px;
-    font-size: 12px;
+  .interact{
+    position: relative;
+  }
+ .interact, .interact span{
+    font-size: 10px;
+  }
+  #welcomeuser{
+    position: absolute;
+    right: 0;
+    bottom: 30px;
+    font-size: 18px;
   }
   .interact .iconContainer{
-    margin-left: 15px;
+    margin-right: 4px;
+    position: relative;
+    bottom: 20px;
   }
-  #Login_btn, #SignUp_btn{
-    font-size: 40px;
+  .play_btn{
+    padding: 15px;
+    margin: 0;
+  }
+  #Logo{
+    height: 60px;
   }
 }
 
