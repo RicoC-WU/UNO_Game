@@ -91,7 +91,7 @@ body{
   top: 100px;
 }
 
-#Login_btn, #SignUp_btn{
+.play_btn,#Login_btn, #SignUp_btn{
   background-color: gold;
   border: none;
   color: Black;
@@ -107,7 +107,12 @@ body{
   width: 50%;
 }
 
-#Login_btn_prnt{
+.play_btn{
+  font-size: 60px;
+  width: 70%;
+}
+
+.btn_prnt,#Login_btn_prnt{
   text-align: center;
   padding-top: 10%;
   padding-bottom: 5px;
@@ -117,7 +122,7 @@ body{
   text-align: center;
 }
 
-#Login_btn:hover, #SignUp_btn:hover{
+.play_btn:hover,#Login_btn:hover, #SignUp_btn:hover{
   background-color: darkgoldenrod;
 }
 
@@ -126,6 +131,11 @@ body{
   right: 0;
   padding-top: 5px;
   font-size: 30px;
+}
+
+#welcomeuser:hover{
+  background: none;
+  cursor:text;
 }
 
 #bckgr{
@@ -195,8 +205,45 @@ body{
 }
 
 @media only screen and (max-width: 620px){
-  .Nav{
+  .interact{
     font-size: 12px;
+    padding-left: 50px;
+  }
+}
+@media only screen and (max-width: 585px){
+  .interact{
+    font-size: 12px;
+    padding-left: 4px;
+  }
+  .interact .iconContainer{
+    margin-left: 24px;
+  }
+}
+@media only screen and (max-width: 520px){
+  .Nav{
+    font-size: 5px;
+  }
+  .interact{
+    padding-left: 2px;
+  }
+  .interact .iconContainer{
+    margin-left: 8px;
+  }
+}
+@media only screen and (max-width: 490px){
+  #Login_btn, #SignUp_btn{
+    margin-top: 80px;
+    padding-top: 20px;
+  }
+  .interact, .interact span{
+    padding-left: 1px;
+    font-size: 12px;
+  }
+  .interact .iconContainer{
+    margin-left: 15px;
+  }
+  #Login_btn, #SignUp_btn{
+    font-size: 40px;
   }
 }
 

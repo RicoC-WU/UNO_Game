@@ -29,6 +29,9 @@ class Home extends Component {
             </>
             :
             <>
+            <div className="btn_prnt"><a href="/Game"><button className="play_btn">PLAY 2-PLAYER GAME</button></a></div>
+            <div className="btn_prnt"><a href="/Game"><button className="play_btn">PLAY 3-PLAYER GAME</button></a></div>
+            <div className="btn_prnt"><a href="/Game"><button className="play_btn">PLAY 4-PLAYER GAME</button></a></div>
             </>
           }
         </div>
