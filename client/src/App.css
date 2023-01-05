@@ -100,7 +100,7 @@ body{
   text-decoration: none;
   font-size: 75px;
   margin: 4px 2px;
-  /* margin-left: 25%; */
+  margin-left: 25%;
   cursor: pointer;
   border-radius: 15px;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,1), 0 6px 20px 0 rgba(0,0,0,0.19);
@@ -234,6 +234,7 @@ body{
 @media only screen and (max-width: 490px){
   .play_btn,#Login_btn, #SignUp_btn{
     margin-top: 80px;
+    margin-left: 0;
     padding-top: 20px;
     font-size: 40px;
   }
@@ -260,6 +261,9 @@ body{
   }
   #Logo{
     height: 60px;
+  }
+  #SignInIcon{
+    width: max-content;
   }
 }
 
