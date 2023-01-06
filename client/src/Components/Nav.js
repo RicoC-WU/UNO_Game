@@ -9,7 +9,7 @@ class Nav extends Component {
   }
 
   componentDidMount(){
-    console.log(!document.URL.includes("/Login"));
+    // console.log(!document.URL.includes("/Login"));
   }
 
   render(){

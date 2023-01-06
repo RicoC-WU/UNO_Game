@@ -10,6 +10,10 @@ class Home extends Component {
     }
   }
 
+  componentDidMount(){
+    window.sessionStorage.removeItem("joining");
+  }
+
   render(){
     return(
       <div className="Home">
@@ -29,9 +33,9 @@ class Home extends Component {
             </>
             :
             <>
-            <div className="btn_prnt"><a href="/Game"><button className="play_btn">PLAY 2-PLAYER GAME</button></a></div>
-            <div className="btn_prnt"><a href="/Game"><button className="play_btn">PLAY 3-PLAYER GAME</button></a></div>
-            <div className="btn_prnt"><a href="/Game"><button className="play_btn">PLAY 4-PLAYER GAME</button></a></div>
+            <div className="btn_prnt"><a href="/Game"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","2Player")}>PLAY 2-PLAYER GAME</button></a></div>
+            <div className="btn_prnt"><a href="/Game"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","3Player")}>PLAY 3-PLAYER GAME</button></a></div>
+            <div className="btn_prnt"><a href="/Game"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","4Player")}>PLAY 4-PLAYER GAME</button></a></div>
             </>
           }
         </div>
