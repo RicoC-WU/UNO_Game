@@ -58,7 +58,10 @@ class Game extends Component {
                 <>
                 <div>
                     Your cards:
-                    {JSON.stringify(this.state.UserCards)}
+                    {/* {JSON.stringify(this.state.UserCards)} */}
+                    {this.state.UserCards.map((Card)=>(
+                        <img src={'./Cards/'+Card.Title} alt={Card.Title}></img>
+                    ))}
                 </div></>
                 }
             </div>

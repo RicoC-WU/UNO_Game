@@ -24,7 +24,8 @@ const io = require("socket.io")(http, {
 
 const folder = '../client/public/Cards'
 
-function Card(Value, Color, WildStatus, DrawStatus, ReverseStatus, SkipStatus){
+function Card(Title, Value, Color, WildStatus, DrawStatus, ReverseStatus, SkipStatus){
+  this.Title = Title
   this.Value = Value;
   this.Color = Color;
   this.WildStatus = WildStatus;
@@ -42,6 +43,7 @@ for(var i = 0; i < cardFiles.length; i++){
   if(currCard == 'UNOdefault.png' || currCard == 'CustomCard.png' || currCard == 'AllUnoCards.png'){
     continue;
   }
+  let title = currCard;
   let color = currCard.includes("Red") ? "Red" : 
               currCard.includes("Blue") ? "Blue" :
               currCard.includes("Green") ? "Green" :
@@ -53,13 +55,13 @@ for(var i = 0; i < cardFiles.length; i++){
   let val = ((wildstatus && !drawstatus) || reversestatus || skipstatus) ? 10 : parseInt(currCard.replace( /^\D+/g, ''));
   if(color == "Black" && wildstatus){
     for(var j = 0; j < 4; j++){
-      AllCards.push(new Card(val,color,wildstatus,drawstatus,reversestatus,skipstatus));
+      AllCards.push(new Card(title,val,color,wildstatus,drawstatus,reversestatus,skipstatus));
     }
   }else if(val == 0 || wildstatus){
-    AllCards.push(new Card(val,color,wildstatus,drawstatus,reversestatus,skipstatus));
+    AllCards.push(new Card(title,val,color,wildstatus,drawstatus,reversestatus,skipstatus));
   }else{
-    AllCards.push(new Card(val,color,wildstatus,drawstatus,reversestatus,skipstatus));
-    AllCards.push(new Card(val,color,wildstatus,drawstatus,reversestatus,skipstatus));
+    AllCards.push(new Card(title,val,color,wildstatus,drawstatus,reversestatus,skipstatus));
+    AllCards.push(new Card(title,val,color,wildstatus,drawstatus,reversestatus,skipstatus));
   }
 }
 
