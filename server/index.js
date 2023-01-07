@@ -157,15 +157,16 @@ io.on('connection', function(socket){
         roomname = roomtype + (Players2Rooms.length-1);
         socket.join(roomname);
         // console.log(roomname);
-        Players2Rooms[Players2Rooms.length-1].players.push({username: data["username"], socketid: socket.id});
+        Players2Rooms[Players2Rooms.length-1].players.push({username: data["username"], usercards: [], socketid: socket.id});
         let playercards = [];
         for(let i = 0; i < 7; i++){
           playercards.push(Players2Rooms[Players2Rooms.length-1].deck.pop());
+          if(i == 6){
+           let index = Players2Rooms[Players2Rooms.length-1].players.length - 1;
+           Players2Rooms[Players2Rooms.length-1].players[index].usercards = playercards;
+          }
         }
         socket.emit("CardsReceive", {cards: playercards});
-        // console.log(Players2Rooms);
-        // console.log("Player 2 room: ")
-        // console.log(Players2Rooms[Players2Rooms.length-1].players);
         if(Players2Rooms[Players2Rooms.length-1].players.length == 2){
           io.to(roomname).emit("startGame", {players: Players2Rooms[Players2Rooms.length-1].players, RoomName: roomname, cards: Players2Rooms[Players2Rooms.length-1].deck});
           Players2Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
@@ -173,31 +174,33 @@ io.on('connection', function(socket){
       }else if(roomtype == "3Player"){
         roomname = roomtype + (Players3Rooms.length-1);
         socket.join(roomname);
-        Players3Rooms[Players3Rooms.length-1].players.push({username: data["username"], socketid: socket.id});
+        Players3Rooms[Players3Rooms.length-1].players.push({username: data["username"],  usercards: [], socketid: socket.id});
         let playercards = [];
         for(let i = 0; i < 7; i++){
           playercards.push(Players3Rooms[Players3Rooms.length-1].deck.pop());
+          if(i == 6){
+            let index = Players3Rooms[Players3Rooms.length-1].players.length - 1;
+            Players3Rooms[Players3Rooms.length-1].players[index].usercards = playercards;
+          }
         }
         socket.emit("CardsReceive", {cards: playercards});
-        // console.log(Players3Rooms);
-        // console.log("Player 3 room: ")
-        // console.log(Players3Rooms[Players3Rooms.length-1].players);
         if(Players3Rooms[Players3Rooms.length-1].players.length == 3){
           io.to(roomname).emit("startGame", {players: Players3Rooms[Players3Rooms.length-1].players, RoomName: roomname, cards: Players3Rooms[Players3Rooms.length-1].deck})
           Players3Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
-      }else if (roomtype == "4Player"){
+      }else if(roomtype == "4Player"){
         roomname = roomtype + (Players4Rooms.length-1);
         socket.join(roomname);
-        Players4Rooms[Players4Rooms.length-1].players.push({username: data["username"], socketid: socket.id});
+        Players4Rooms[Players4Rooms.length-1].players.push({username: data["username"],  usercards: [], socketid: socket.id});
         let playercards = [];
         for(let i = 0; i < 7; i++){
           playercards.push(Players4Rooms[Players4Rooms.length-1].deck.pop());
+          if(i == 6){
+            let index = Players4Rooms[Players4Rooms.length-1].players.length - 1;
+            Players4Rooms[Players4Rooms.length-1].players[index].usercards = playercards;
+          }
         }
         socket.emit("CardsReceive", {cards: playercards});
-        // console.log(Players4Rooms);
-        // console.log("Player 4 room: ")
-        // console.log(Players4Rooms[Players4Rooms.length-1].players);
         if(Players4Rooms[Players4Rooms.length-1].players.length == 4){
           io.to(roomname).emit("startGame", {players: Players4Rooms[Players4Rooms.length-1].players, RoomName: roomname, cards: Players4Rooms[Players4Rooms.length-1].deck})
           Players4Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});

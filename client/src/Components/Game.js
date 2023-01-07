@@ -11,7 +11,8 @@ class Game extends Component {
             AllUsers: [],
             Deck: [],
             UserCards: [],
-            currTurn: ''
+            currTurn: '',
+            order: 0
         }
     }
     
@@ -32,15 +33,34 @@ class Game extends Component {
             })
         })
         socket.on("startGame",function(data){
+            let AllUsers = data["players"];
+            console.log(AllUsers);
+            let ShiftUsers = []
+            let index = AllUsers.indexOf(AllUsers.find(Player => Player.username === window.sessionStorage.getItem("UserLogged")));
+            console.log(index);
             self.setState({
-                AllUsers: data["players"],
-                currTurn: data["players"][0],
+                // AllUsers: data["players"],
+                // currTurn: data["players"][0],
                 Deck: data["cards"],
-                RoomName: data["RoomName"]
+                RoomName: data["RoomName"],
+                order: index
             }, ()=>{
                 // console.log("here");
-                console.log("Deck:")
-                console.log(self.state.Deck);
+                // console.log("Deck:")
+                // console.log(self.state.Deck);
+                for(let i = 0; i < AllUsers.length; i++){
+                    ShiftUsers.push(AllUsers[index]);
+                    if(index+1 === AllUsers.length){
+                        index = 0;
+                    }else{
+                        index++;
+                    }
+                }
+                console.log(ShiftUsers);
+                self.setState({
+                    AllUsers: ShiftUsers,
+                    currTurn: data["players"][0]
+                })
             })            
         })
         
@@ -57,12 +77,51 @@ class Game extends Component {
                 : 
                 <>
                 <div>
-                    Your cards:
                     {/* {JSON.stringify(this.state.UserCards)} */}
+                    {/* <div className="playercards">
                     {this.state.UserCards.map((Card)=>(
                         <img src={'./Cards/'+Card.Title} alt={Card.Title}></img>
-                    ))}
-                </div></>
+                    ))} */}
+
+                    
+                        <div className="AllPlayers">
+                            
+                            {this.state.AllUsers.map((Player)=>(
+                                <div>
+                                    {
+                                        Player.username === sessionStorage.getItem("UserLogged") ? 
+                                        <>
+                                            Your Cards:
+                                        </>
+                                        :
+                                        <>
+                                            {Player.username}'s Cards:
+                                        </>
+                                    }
+                                    <div className="playercards">
+                                    {Player.usercards.map((Card)=>(
+                                        <>
+                                        
+                                            {
+                                                Player.username === sessionStorage.getItem("UserLogged") ? 
+                                                <>
+                                                    <img src={'./Cards/'+Card.Title} alt={Card.Title}></img>
+                                                </> 
+                                                : 
+                                                <> 
+                                                    
+                                                    <img src={'./Cards/UNOdefault.png'} alt={'UNO Default Card'}></img>
+                                                </>
+                                            }
+
+                                        </>
+                                    ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </>
                 }
             </div>
         );
