@@ -198,7 +198,7 @@ io.on('connection', function(socket){
         // console.log(Players4Rooms);
         // console.log("Player 4 room: ")
         // console.log(Players4Rooms[Players4Rooms.length-1].players);
-        if(Players4Rooms[Players4Rooms.length-1].players.length == 2){
+        if(Players4Rooms[Players4Rooms.length-1].players.length == 4){
           io.to(roomname).emit("startGame", {players: Players4Rooms[Players4Rooms.length-1].players, RoomName: roomname, cards: Players4Rooms[Players4Rooms.length-1].deck})
           Players4Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
