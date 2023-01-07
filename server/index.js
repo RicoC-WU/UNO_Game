@@ -3,6 +3,7 @@ const http = require('http').Server(app);
 const express = require('express');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
 
 const PORT = process.env.PORT || 3456;
 
@@ -21,9 +22,61 @@ const io = require("socket.io")(http, {
   }
 });
 
-let Players2Rooms = [[]];
-let Players3Rooms = [[]];
-let Players4Rooms = [[]];
+const folder = '../client/public/Cards'
+
+function Card(Value, Color, WildStatus, DrawStatus, ReverseStatus, SkipStatus){
+  this.Value = Value;
+  this.Color = Color;
+  this.WildStatus = WildStatus;
+  this.DrawStatus = DrawStatus;
+  this.ReverseStatus = ReverseStatus;
+  this.SkipStatus = SkipStatus;
+}
+
+let cardFiles = fs.readdirSync(folder);
+let AllCards = [];
+
+
+for(var i = 0; i < cardFiles.length; i++){
+  let currCard = cardFiles[i];
+  if(currCard == 'UNOdefault.png' || currCard == 'CustomCard.png' || currCard == 'AllUnoCards.png'){
+    continue;
+  }
+  let color = currCard.includes("Red") ? "Red" : 
+              currCard.includes("Blue") ? "Blue" :
+              currCard.includes("Green") ? "Green" :
+              currCard.includes("Yellow") ? "Yellow" : "Black";
+  let wildstatus = currCard.includes("Wild");
+  let drawstatus = currCard.includes("Draw");
+  let reversestatus = currCard.includes("Reverse");
+  let skipstatus = currCard.includes("Skip");
+  let val = ((wildstatus && !drawstatus) || reversestatus || skipstatus) ? 10 : parseInt(currCard.replace( /^\D+/g, ''));
+  if(color == "Black" && wildstatus){
+    for(var j = 0; j < 4; j++){
+      AllCards.push(new Card(val,color,wildstatus,drawstatus,reversestatus,skipstatus));
+    }
+  }else if(val == 0 || wildstatus){
+    AllCards.push(new Card(val,color,wildstatus,drawstatus,reversestatus,skipstatus));
+  }else{
+    AllCards.push(new Card(val,color,wildstatus,drawstatus,reversestatus,skipstatus));
+    AllCards.push(new Card(val,color,wildstatus,drawstatus,reversestatus,skipstatus));
+  }
+}
+
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+let Players2Rooms = [{players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))}];
+let Players3Rooms = [{players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))}];
+let Players4Rooms = [{players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))}];
+
+
 
 async function hashPassword(sql,socket,username,textPass){
   try{
@@ -55,7 +108,7 @@ async function comparePassword(socket,UserInfo,userEnter,textPass){
     }
   }
 }
-   
+
 
 io.on('connection', function(socket){
     // console.log("A client conencted "+socket.id);
@@ -100,36 +153,52 @@ io.on('connection', function(socket){
       let roomtype = data["roomtype"];
       if(roomtype == "2Player"){
         roomname = roomtype + (Players2Rooms.length-1);
-        Players2Rooms[Players2Rooms.length-1].push(data["username"]);
         socket.join(roomname);
+        // console.log(roomname);
+        Players2Rooms[Players2Rooms.length-1].players.push({username: data["username"], socketid: socket.id});
+        let playercards = [];
+        for(let i = 0; i < 7; i++){
+          playercards.push(Players2Rooms[Players2Rooms.length-1].deck.pop());
+        }
+        socket.emit("CardsReceive", {cards: playercards});
         // console.log(Players2Rooms);
         // console.log("Player 2 room: ")
-        // console.log(Players2Rooms[Players2Rooms.length-1]);
-        if(Players2Rooms[Players2Rooms.length-1].length == 2){
-          io.to(roomname).emit("startGame", {players: Players2Rooms[Players2Rooms.length-1]})
-          Players2Rooms.push([]);
+        // console.log(Players2Rooms[Players2Rooms.length-1].players);
+        if(Players2Rooms[Players2Rooms.length-1].players.length == 2){
+          io.to(roomname).emit("startGame", {players: Players2Rooms[Players2Rooms.length-1].players, RoomName: roomname, cards: Players2Rooms[Players2Rooms.length-1].deck});
+          Players2Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
       }else if(roomtype == "3Player"){
         roomname = roomtype + (Players3Rooms.length-1);
-        Players3Rooms[Players3Rooms.length-1].push(data["username"]);
         socket.join(roomname);
+        Players3Rooms[Players3Rooms.length-1].players.push({username: data["username"], socketid: socket.id});
+        let playercards = [];
+        for(let i = 0; i < 7; i++){
+          playercards.push(Players3Rooms[Players3Rooms.length-1].deck.pop());
+        }
+        socket.emit("CardsReceive", {cards: playercards});
         // console.log(Players3Rooms);
         // console.log("Player 3 room: ")
-        // console.log(Players3Rooms[Players3Rooms.length-1]);
-        if(Players3Rooms[Players3Rooms.length-1].length == 3){
-          io.to(roomname).emit("startGame", {players: Players3Rooms[Players3Rooms.length-1]})
-          Players3Rooms.push([]);
+        // console.log(Players3Rooms[Players3Rooms.length-1].players);
+        if(Players3Rooms[Players3Rooms.length-1].players.length == 3){
+          io.to(roomname).emit("startGame", {players: Players3Rooms[Players3Rooms.length-1].players, RoomName: roomname, cards: Players3Rooms[Players3Rooms.length-1].deck})
+          Players3Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
       }else if (roomtype == "4Player"){
         roomname = roomtype + (Players4Rooms.length-1);
-        Players4Rooms[Players4Rooms.length-1].push(data["username"]);
         socket.join(roomname);
+        Players4Rooms[Players4Rooms.length-1].players.push({username: data["username"], socketid: socket.id});
+        let playercards = [];
+        for(let i = 0; i < 7; i++){
+          playercards.push(Players4Rooms[Players4Rooms.length-1].deck.pop());
+        }
+        socket.emit("CardsReceive", {cards: playercards});
         // console.log(Players4Rooms);
         // console.log("Player 4 room: ")
-        // console.log(Players4Rooms[Players4Rooms.length-1]);
-        if(Players4Rooms[Players4Rooms.length-1].length == 4){
-          io.to(roomname).socket.emit("startGame", {players: Players4Rooms[Players4Rooms.length-1]})
-          Players4Rooms.push([]);
+        // console.log(Players4Rooms[Players4Rooms.length-1].players);
+        if(Players4Rooms[Players4Rooms.length-1].players.length == 2){
+          io.to(roomname).emit("startGame", {players: Players4Rooms[Players4Rooms.length-1].players, RoomName: roomname, cards: Players4Rooms[Players4Rooms.length-1].deck})
+          Players4Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
       }
      

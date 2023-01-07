@@ -10,9 +10,9 @@ let socket;
 
 let ip = window.location.hostname;
 if (ip.startsWith('192.168.')) {
-  socket = io("http://192.168.1.105")
+  socket = io("http://192.168.1.105");
 } else if(ip.includes('localhost')){
-  socket = io('http://localhost:3456')
+  socket = io('http://localhost:3456');
 } else{ 
   socket = io("http://108.236.64.90");
 } 

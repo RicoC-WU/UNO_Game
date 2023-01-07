@@ -1,18 +1,20 @@
 import { Component } from 'react';
 import 'socket.io-client';
 
-
 class Game extends Component {
     constructor(props){
         super(props);
         this.state = {
             currentUser: window.sessionStorage.getItem("UserLogged"),
             joinGame: window.sessionStorage.getItem("joining"),
+            RoomName: '',
             AllUsers: [],
+            Deck: [],
             UserCards: [],
             currTurn: ''
         }
     }
+    
 
     componentDidMount(){
         const self = this;
@@ -22,23 +24,42 @@ class Game extends Component {
             window.location.assign('/');
         }
         socket.emit("joinroom",{username: this.state.currentUser, roomtype: this.state.joinGame});
+        socket.on("CardsReceive",function(data){
+            self.setState({
+                UserCards: data["cards"]
+            },()=>{
+                // console.log(self.state.UserCards);
+            })
+        })
         socket.on("startGame",function(data){
             self.setState({
                 AllUsers: data["players"],
-                currTurn: data["players"][0]
+                currTurn: data["players"][0],
+                Deck: data["cards"],
+                RoomName: data["RoomName"]
             }, ()=>{
-                console.log(self.state.AllUsers);
-            })
-            
+                // console.log("here");
+                console.log("Deck:")
+                console.log(self.state.Deck);
+            })            
         })
+        
 
     }
 
     render(){
         return(
             <div className="UNO_Game">
-                {
-                    this.state.currTurn === '' ? <>WAITING</> : <></>
+                {this.state.currTurn === '' ? 
+                <>
+                    WAITING
+                </> 
+                : 
+                <>
+                <div>
+                    Your cards:
+                    {JSON.stringify(this.state.UserCards)}
+                </div></>
                 }
             </div>
         );
