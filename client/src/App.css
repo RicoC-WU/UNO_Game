@@ -13,6 +13,8 @@ body{
   background-image: linear-gradient(to right, red, orange, yellow, orange, red);
   font-family: "Audiowide", sans-serif;
   display: flex;
+  position: relative;
+  z-index: 1;
 }
 
 .interact{
@@ -234,8 +236,26 @@ body{
     margin-left: 8px;
   }
 }
-@media only screen and (max-width: 490px){
-  .play_btn,#Login_btn, #SignUp_btn{
+@media screen and (max-width: 990px){
+  #Login_btn, #SignUp_btn{
+    font-size: 60px;
+    width: 80%;
+  }
+  #Login_btn, #SignUp_btn{
+    margin-top: 80px;
+    margin-left: 0;
+    padding-top: 20px;
+    font-size: 60px;
+  }
+  .play_btn{
+    margin-top: 80px;
+    margin-left: 100px;
+    font-size: 60px;
+  }
+}
+
+@media only screen and (max-width: 570px){
+  #Login_btn, #SignUp_btn{
     margin-top: 80px;
     margin-left: 0;
     padding-top: 20px;
@@ -259,8 +279,9 @@ body{
     bottom: 20px;
   }
   .play_btn{
-    padding: 15px;
-    margin: 0;
+    margin-top: 45px;
+    margin-left: 20px;
+    font-size: 40px;
   }
   #Logo{
     height: 60px;
@@ -276,9 +297,70 @@ body{
 
 .playercards{
   overflow-x: scroll;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   display: flex;
-  max-width: 1490px;
+  /* align-items: center; */
+  max-width: 400px;
 }::-webkit-scrollbar{
   display: none;
+}
+
+#cards0, #cards1, #cards2, #cards3{
+  height: 110px;
+}
+
+[id*="playernext"]{
+  display: grid;
+  place-items: center;
+  width:50%;
+}
+
+#playernext0{
+  position: relative;
+  top: 390px;
+}
+
+#playernext1{
+  transform: rotate(90deg);
+  position: relative;
+  right: 320px;
+  top: 60px;
+  flex-direction: column;
+}
+
+#playernext1 .WhoCards{
+  transform: rotate(270deg);
+  position: relative;
+  top: 180px;
+}
+
+#playernext2{
+  transform: rotate(180deg);
+  position: relative;
+  bottom: 260px;
+}
+
+#playernext2 .WhoCards{
+  transform: rotate(180deg);
+  position: relative;
+  /* top: 180px; */
+}
+
+#playernext3{
+  transform: rotate(270deg);
+  position: relative;
+  left: 320px;
+  bottom: 200px;
+  /* top: 60px; */
+}
+
+#playernext3 .WhoCards{
+  transform: rotate(90deg);
+  position: relative;
+  bottom: 50px;
+}
+
+.AllPlayers{
+  display: grid;
+  place-items: center;
 }

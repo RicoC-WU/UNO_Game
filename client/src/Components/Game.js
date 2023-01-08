@@ -8,6 +8,7 @@ class Game extends Component {
             currentUser: window.sessionStorage.getItem("UserLogged"),
             joinGame: window.sessionStorage.getItem("joining"),
             RoomName: '',
+            OrrUsers: [],
             AllUsers: [],
             Deck: [],
             UserCards: [],
@@ -34,10 +35,10 @@ class Game extends Component {
         })
         socket.on("startGame",function(data){
             let AllUsers = data["players"];
-            console.log(AllUsers);
+            // console.log(AllUsers);
             let ShiftUsers = []
             let index = AllUsers.indexOf(AllUsers.find(Player => Player.username === window.sessionStorage.getItem("UserLogged")));
-            console.log(index);
+            // console.log(index);
             self.setState({
                 // AllUsers: data["players"],
                 // currTurn: data["players"][0],
@@ -58,6 +59,7 @@ class Game extends Component {
                 }
                 console.log(ShiftUsers);
                 self.setState({
+                    OrrUsers: AllUsers,
                     AllUsers: ShiftUsers,
                     currTurn: data["players"][0]
                 })
@@ -85,32 +87,30 @@ class Game extends Component {
 
                     
                         <div className="AllPlayers">
-                            
                             {this.state.AllUsers.map((Player)=>(
-                                <div>
+                                <div id={"playernext"+this.state.AllUsers.indexOf(this.state.AllUsers.find(newPlayer => newPlayer.username === Player.username))}>
                                     {
                                         Player.username === sessionStorage.getItem("UserLogged") ? 
-                                        <>
+                                        <div className="WhoCards">
                                             Your Cards:
-                                        </>
+                                        </div>
                                         :
-                                        <>
+                                        <div className="WhoCards">
                                             {Player.username}'s Cards:
-                                        </>
+                                        </div>
                                     }
-                                    <div className="playercards">
+                                    <div className={"playercards"} id={"cards"+this.state.AllUsers.indexOf(this.state.AllUsers.find(newPlayer => newPlayer.username === Player.username))}>
                                     {Player.usercards.map((Card)=>(
                                         <>
                                         
                                             {
                                                 Player.username === sessionStorage.getItem("UserLogged") ? 
                                                 <>
-                                                    <img src={'./Cards/'+Card.Title} alt={Card.Title}></img>
+                                                    <img className="YourCards" src={'./Cards/'+Card.Title} alt={Card.Title}></img>
                                                 </> 
                                                 : 
-                                                <> 
-                                                    
-                                                    <img src={'./Cards/UNOdefault.png'} alt={'UNO Default Card'}></img>
+                                                <>  
+                                                    <img className="OtherUserCards" src={'./Cards/UNOdefault.png'} alt={'UNO Default Card'}></img>
                                                 </>
                                             }
 
