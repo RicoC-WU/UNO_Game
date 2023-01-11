@@ -40,7 +40,7 @@ let AllCards = [];
 
 for(var i = 0; i < cardFiles.length; i++){
   let currCard = cardFiles[i];
-  if(currCard == 'UNOdefault.png' || currCard == 'CustomCard.png' || currCard == 'AllUnoCards.png'){
+  if(['UNOdefault.png','CustomCard.png','AllUnoCards.png',"test.css"].includes(currCard)){
     continue;
   }
   let title = currCard;

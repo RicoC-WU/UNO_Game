@@ -315,12 +315,12 @@ body{
   width:50%;
 }
 
-#playernext0{
+.AllPlayers4 #playernext0{
   position: relative;
   top: 390px;
 }
 
-#playernext1{
+.AllPlayers4 #playernext1{
   transform: rotate(90deg);
   position: relative;
   right: 320px;
@@ -328,25 +328,25 @@ body{
   flex-direction: column;
 }
 
-#playernext1 .WhoCards{
+.AllPlayers4 #playernext1 .WhoCards{
   transform: rotate(270deg);
   position: relative;
   top: 180px;
 }
 
-#playernext2{
+.AllPlayers4 #playernext2{
   transform: rotate(180deg);
   position: relative;
   bottom: 260px;
 }
 
-#playernext2 .WhoCards{
+.AllPlayers4 #playernext2 .WhoCards{
   transform: rotate(180deg);
   position: relative;
   /* top: 180px; */
 }
 
-#playernext3{
+.AllPlayers4 #playernext3{
   transform: rotate(270deg);
   position: relative;
   left: 320px;
@@ -354,13 +354,22 @@ body{
   /* top: 60px; */
 }
 
-#playernext3 .WhoCards{
+.AllPlayers4 #playernext3 .WhoCards{
   transform: rotate(90deg);
   position: relative;
   bottom: 50px;
 }
 
-.AllPlayers{
+.AllPlayers4{
   display: grid;
   place-items: center;
 }
+
+.blankspace{
+  height: 132px;
+  width: 491px;
+}
+
+/* .selectBtn{
+  display: none;
+} */
