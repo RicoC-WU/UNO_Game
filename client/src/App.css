@@ -297,16 +297,19 @@ body{
 
 .playercards{
   overflow-x: scroll;
+  overflow-y: hidden;
   /* white-space: nowrap; */
   display: flex;
   /* align-items: center; */
   max-width: 400px;
+  height: 150px;
 }::-webkit-scrollbar{
   display: none;
 }
 
 #cards0, #cards1, #cards2, #cards3{
   height: 110px;
+  padding-bottom: 4px;
 }
 
 [id*="playernext"]{
@@ -315,9 +318,10 @@ body{
   width:50%;
 }
 
-.AllPlayers4 #playernext0{
+.AllPlayers4 #playernext0, .AllPlayers3 #playernext0, .AllPlayers2 #playernext0{
   position: relative;
   top: 390px;
+  text-align: center;
 }
 
 .AllPlayers4 #playernext1{
@@ -340,7 +344,13 @@ body{
   bottom: 260px;
 }
 
-.AllPlayers4 #playernext2 .WhoCards{
+.AllPlayers2 #playernext1{
+  transform: rotate(180deg);
+  position: relative;
+  bottom: 100px;
+}
+
+.AllPlayers4 #playernext2 .WhoCards, .AllPlayers2 #playernext1 .WhoCards{
   transform: rotate(180deg);
   position: relative;
   /* top: 180px; */
@@ -360,9 +370,53 @@ body{
   bottom: 50px;
 }
 
-.AllPlayers4{
+.AllPlayers4, .AllPlayers3, .AllPlayers2{
   display: grid;
   place-items: center;
+}
+
+.AllPlayers3 #playernext1{
+  transform: rotate(135deg);
+  position: relative;
+  right: 200px;
+}
+
+.AllPlayers3 #playernext1 .WhoCards{
+  transform: rotate(225deg);
+  position: relative;
+  top: 190px;
+}
+
+.AllPlayers3 #playernext2{
+  transform: rotate(225deg);
+  position: relative;
+  left: 200px;
+  bottom: 130px;
+}
+
+.AllPlayers3 #playernext2 .WhoCards{
+  transform: rotate(135deg);
+  position: relative;
+  top: 190px;
+}
+
+.DeckDrawBtn{
+  margin-left: 20px;
+}
+
+.selectBtn{
+  margin-left: 20px;
+}
+
+
+.AllPlayers3 .playerBtns{
+  position: relative;
+  bottom: 40px;
+}
+
+.AllPlayers4 .playerBtns{
+  position: relative; 
+  bottom: 175px;
 }
 
 .blankspace{
@@ -370,6 +424,46 @@ body{
   width: 491px;
 }
 
-/* .selectBtn{
-  display: none;
-} */
+[id*="YourCards"], [id*="OtherUserCards"]{
+  height: inherit;
+  border: 2px solid black;
+  border-radius: 10px;
+  margin-right: 2px;
+}
+
+.trashpile{
+  position: absolute;
+}
+
+.trashcard{
+  position: absolute;
+  border: 1px solid black;
+  border-radius: 10px;
+  height: 110px;
+  top: -38px;
+  right: 30px;
+  /* display: none; */
+}
+
+.trashcard:nth-child(2){
+  transform: rotate(20deg);
+}
+.trashcard:nth-child(3){
+  transform: rotate(-20deg);
+ 
+}
+
+.Deck{
+  position: absolute;
+  display: grid;
+  place-items: center;
+  top: 320px;
+  margin-left: 100px;
+}
+
+.DeckCard{
+  height: 110px;
+  border: 1px solid black;
+  border-radius: 10px;
+  
+}

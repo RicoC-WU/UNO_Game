@@ -13,7 +13,7 @@ var con = mysql.createConnection({
   password: "UnoGameProjectPass",
   database: "UNO_Game"
 });
-[]
+
 const io = require("socket.io")(http, {
   cors:{
     origins: ['localhost:3000','192.168.1.105','108.236.64.90','rockjc01.hopto.org'],
@@ -106,7 +106,7 @@ async function comparePassword(socket,UserInfo,userEnter,textPass){
         socket.emit("LoginFailure");
       }
     }catch{
-      console.log("ERROR COULDN'T HASH PASSWORD");
+      console.log("ERROR COULDN'T LOGIN");
     }
   }
 }
@@ -207,6 +207,20 @@ io.on('connection', function(socket){
         }
       }
      
+    });
+
+    socket.on("showothers",function(data){
+      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      if(parseInt(data["roomtype"]) === 2){
+        Players2Rooms[roomindex].players = data["OrrUsers"];
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players2Rooms[roomindex].players, Deck: data["Deck"], trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"]})
+      }else if(parseInt(data["roomtype"]) === 3){
+        Players3Rooms[roomindex].players = data["OrrUsers"];
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players3Rooms[roomindex].players, Deck: data["Deck"], trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"]})
+      }else if(parseInt(data["roomtype"]) === 4){
+        Players4Rooms[roomindex].players = data["OrrUsers"];
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players4Rooms[roomindex].players, Deck: data["Deck"], trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"]})
+      }
     });
 
 });
