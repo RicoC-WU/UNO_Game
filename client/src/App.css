@@ -467,3 +467,13 @@ body{
   border-radius: 10px;
   
 }
+
+.trashcard:nth-child(0){
+  z-index: 0;
+}
+.trashcard:nth-child(1){
+  z-index: 1;
+}
+.trashcard:nth-child(2){
+  z-index: 2;
+}

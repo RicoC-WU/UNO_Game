@@ -16,7 +16,8 @@ class Game extends Component {
             UserCards: [],
             currTurn: '',
             order: 0,
-            disabled: true,
+            selDisabled: true,
+            deckDisabled: true,
             currpile: ['','',''],
             tr_index: 0
         }
@@ -24,6 +25,7 @@ class Game extends Component {
         this.handleDealCard = this.handleDealCard.bind(this);
         // this.handleCardPosition = this.handleCardPosition.bind(this);
         this.handleDeckCardDeal = this.handleDeckCardDeal.bind(this);
+        this.handleDeckShuffle = this.handleDeckShuffle.bind(this);
 
     }
     
@@ -73,42 +75,61 @@ class Game extends Component {
                     OrrUsers: AllUsers,
                     AllUsers: ShiftUsers,
                     currTurn: AllUsers[0].username
+                },()=>{
+                    if(self.state.currTurn === self.state.currentUser){
+                        self.setState({
+                            deckDisabled: false
+                        })
+                    }
                 })
             })            
         }) 
         socket.on("getroundinfo",function(data){
-            let ShiftUsers = [];
             let players = data["players"];
+            let ShiftUsers = []
             let index = self.state.order;
             let trashcards = document.getElementsByClassName("trashcard");
-            let tr_index = data["tr_index"]
+            let tr_index = data["tr_index"];
+
+            console.log(tr_index);
             
             // console.log(AllUsers);
-            if(trashcards.length > 0){
-                for(let i = 0; i < 3; i++){
-                    if(trashcards[i]){
-                        trashcards[i].style.zIndex = 0;
-                    }
-                }
-                // console.log("Z index:");
-                // console.log(trashcards[0].style.zIndex);
-                // console.log(trashcards[1].style.zIndex);
-                // console.log(trashcards[2].style.zIndex);
-                let tr_index2 = tr_index - 1;
-                if(tr_index2 >= 0 && trashcards[tr_index2]){
-                    trashcards[tr_index2].style.zIndex = 1;
-                }else if(trashcards[2]){
+            for(let i = 0; i < trashcards.length; i++){
+                
+                trashcards[i].style.zIndex = 0;
+            }
+
+            if(trashcards.length === 3){
+                if(tr_index == 1){
                     trashcards[2].style.zIndex = 1;
+                }
+                if(tr_index == 2){
+                    trashcards[0].style.zIndex = 1;
+                }
+                if(tr_index == 0){
+                    trashcards[1].style.zIndex = 1;
                 }
             }
 
+            let tr_index2 = tr_index-1;
+            if(trashcards[tr_index2]){
+                trashcards[tr_index2].style.zIndex = 2;
+            }else if(trashcards[2]){
+                trashcards[2].style.zIndex = 2;
+            }
+
             self.setState({
-                Deck: data["Deck"],
                 trash: data["trash"],
-                // currpile: data["currpile"],
+                currpile: data["currpile"],
                 tr_index: data["tr_index"],
                 currTurn: data["currTurn"]
             }, ()=>{
+                if(self.state.currTurn === self.state.currentUser){
+                    self.setState({
+                        deckDisabled: false
+                    })
+                }
+
                 for(let i = 0; i < players.length; i++){
                     ShiftUsers.push(players[index]);
                     if(index+1 === players.length){
@@ -121,8 +142,51 @@ class Game extends Component {
                 self.setState({
                     OrrUsers: players,
                     AllUsers: ShiftUsers,
-                    currpile: data["currpile"]
+                    // currpile: data["currpile"]
                 })
+            })
+        })
+
+        socket.on("getdeckroundinfo",function(data){
+            let players = data["players"];
+            let ShiftUsers = []
+            let index = self.state.order;
+
+            self.setState({
+                currTurn: data["currTurn"],
+                Deck: data["Deck"]
+            },()=>{
+                // if(self.state.Deck.length === 0){
+                if(self.state.currTurn === self.state.currentUser){
+                    self.setState({
+                        deckDisabled: false
+                    })
+                }
+                // }
+    
+                for(let i = 0; i < players.length; i++){
+                    ShiftUsers.push(players[index]);
+                    if(index+1 === players.length){
+                        index = 0;
+                    }else{
+                        index++;
+                    }
+                }    
+                self.setState({
+                    OrrUsers: players,
+                    AllUsers: ShiftUsers,
+                    // currpile: data["currpile"]
+                })
+            })
+
+        })
+
+        socket.on("emptytrash",function(data){
+            self.setState({
+                Deck: data["newDeck"],
+                trash: [],
+                currpile: ['','',''],
+                tr_index: 0
             })
         })
     }
@@ -141,13 +205,13 @@ class Game extends Component {
         if(event.target.style.border === "2.5px solid orange"){
             event.target.style.border = "2px solid black";
             self.setState({
-                disabled: true
+                selDisabled: true
             })
             return;
         }
 
         self.setState({
-            disabled: false
+            selDisabled: false
         })
 
         for(let j = 0; j < cards.length; j++){
@@ -170,6 +234,37 @@ class Game extends Component {
         let cards = Array.from(document.querySelectorAll('[id^="YourCards"]'));
         // console.log(selectedcard);
         let index = Array.from(cards).indexOf(selectedcard);
+        
+        if(this.state.trash.length > 0){
+            let currcard = this.state.UserCards[index];
+            let toptrashcard = this.state.trash[this.state.trash.length-1];
+            if(currcard.Color !== "Black" && toptrashcard.Color !== "Black"){
+                //if it's a draw card
+                if(toptrashcard.DrawStatus){
+                    if(currcard.DrawStatus && (currcard.Value !== toptrashcard.Value)){
+                        return;
+                    }
+                    else if((currcard.Color !== toptrashcard.Color)&&(currcard.DrawStatus !== toptrashcard.DrawStatus)){
+                        return;
+                    }
+                } //if it's a skip card
+                else if(toptrashcard.SkipStatus){
+                    if((currcard.Color !== toptrashcard.Color)&&(currcard.SkipStatus !== toptrashcard.SkipStatus)){
+                        return;
+                    }
+                } //if it's a reverse card
+                else if(toptrashcard.ReverseStatus){
+                    if((currcard.Color !== toptrashcard.Color)&&(currcard.ReverseStatus !== toptrashcard.ReverseStatus)){
+                        return;
+                    }
+                }else{ //if it's a regular number card 
+                    if((currcard.Value !== toptrashcard.Value)&&(currcard.Color !== toptrashcard.Color)){
+                        return;
+                    }
+                }
+            }
+        }
+
         let playerindex = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currentUser));
         let OrrUsers = this.state.OrrUsers;
         
@@ -192,20 +287,34 @@ class Game extends Component {
         trash.push(this.state.UserCards[index])
         currpile[tr_index] = this.state.UserCards[index];
 
-        if(trashcards.length > 0){
-            for(let i = 0; i < 3; i++){
-                if(trashcards[i]){
-                    trashcards[i].style.zIndex = 0;
+        // if(trashcards.length > 0){
+            for(let i = 0; i < trashcards.length; i++){
+                // if(trashcards[i]){
+                console.log(trashcards[i].style.zIndex);
+                trashcards[i].style.zIndex = 0;
+                // }
+            }
+            if(trashcards.length === 3){
+                if(trashcards[tr_index]){
+                    trashcards[tr_index].style.zIndex = 2;
+                }
+                if(tr_index == 0){
+                    if(trashcards[2]){
+                        trashcards[2].style.zIndex = 1;
+                    }
+                }
+                if(tr_index == 1){
+                    if(trashcards[0]){
+                        trashcards[0].style.zIndex = 1;
+                    }
+                }
+                if(tr_index == 2){
+                    if(trashcards[1]){
+                        trashcards[1].style.zIndex = 1;
+                    }
                 }
             }
-            // console.log("Z index:");
-            // console.log(trashcards[0].style.zIndex);
-            // console.log(trashcards[1].style.zIndex);
-            // console.log(trashcards[2].style.zIndex);
-            if(trashcards[tr_index]){
-                trashcards[tr_index].style.zIndex = 1;
-            }
-        }
+        // }
 
         tr_index = tr_index + 1;
 
@@ -232,9 +341,10 @@ class Game extends Component {
                 cards[j].className = "unselected";
             }
             this.setState({
-                disabled: true
+                selDisabled: true,
+                deckDisabled: true
             })
-            socket.emit("showothers",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, Deck: this.state.Deck, 
+            socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, /*Deck: this.state.Deck,*/ 
             trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn})
         })
 
@@ -244,34 +354,57 @@ class Game extends Component {
         // this.handleCardPosition();
     }
 
-    // handleCardPosition(){
-    //     var cards = document.getElementsByClassName('YourCards');
-    //     var j = -Math.round(cards.length/2);
-
-    
-
-    //     for (let i = 0; i < cards.length; i++) {
-    //         cards[i].style.position = 'absolute';
-    //         cards[i].style.top = `${j * 10}px`;
-    //         cards[i].style.left = `${j * 10}px`;
-    //         cards[i].style.zIndex = i;
-    //         cards[i].style.transform = `rotate(${j * 10}deg)`;
-    //         j++;
-    //     }
-
-    //     var cards2 = document.getElementsByClassName('OtherUserCards');
-
-    //     for (let i = 0; i < cards.length; i++) {
-    //         cards2[i].style.position = 'absolute';
-    //         cards2[i].style.top = `${i * 10}px`;
-    //         cards2[i].style.left = `${i * 10}px`;
-    //         cards2[i].style.zIndex = i;
-    //         cards2[i].style.transform = `rotate(${i * 5}deg)`;
-    //     }
-    // }
-
     handleDeckCardDeal(){
+        const socket = this.props.socket;
 
+        let Deck = this.state.Deck;
+        let UserCards = this.state.UserCards;
+        let OrrUsers = this.state.OrrUsers;
+        let playerindex = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currentUser));
+        let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
+        let cards = Array.from(document.querySelectorAll('[id^="YourCards"]'));
+
+        UserCards.push(Deck[Deck.length-1]);
+        Deck.splice(Deck.length-1,1);
+
+        OrrUsers[playerindex].usercards = UserCards;
+
+        currind = currind + 1;
+        if(currind === this.state.OrrUsers.length){
+            currind = 0;
+        }
+
+        this.setState({
+            OrrUsers: OrrUsers,
+            Deck: Deck,
+            currTurn: OrrUsers[currind].username,
+            UserCards: UserCards
+        },()=>{
+
+            for(let j = 0; j < cards.length; j++){
+                cards[j].style.border = "2px solid black";
+                cards[j].style.borderRadius = '10px';
+                cards[j].className = "unselected";
+            }
+            this.setState({
+                selDisabled: true,
+                deckDisabled: true
+            })
+
+            socket.emit("userpickdeck",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, Deck: this.state.Deck, 
+            currTurn: this.state.currTurn})
+
+        })
+    }
+
+    handleDeckShuffle(){
+        const socket = this.props.socket; 
+        // let playerindex = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currentUser));
+        // let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
+
+        socket.emit("shufflenewdeck",{roomtype: this.state.RoomType, roomname: this.state.RoomName, 
+        trash: this.state.trash})
+        
     }
 
     render(){
@@ -296,8 +429,16 @@ class Game extends Component {
                                 {
                                     Player.username === sessionStorage.getItem("UserLogged") ? 
                                     <div className="WhoCards">
-                                        <button className="selectBtn" onClick={this.handleDealCard} disabled={this.state.disabled}>SELECT</button>
-                                        <button className="DeckDrawBtn">DRAW FROM DECK</button>
+                                        <button className="selectBtn" onClick={this.handleDealCard} disabled={this.state.selDisabled}>SELECT</button>
+                                        {this.state.Deck.length > 0 ? 
+                                            <>
+                                            <button className="DeckDrawBtn" onClick={this.handleDeckCardDeal} disabled={this.state.deckDisabled}>DRAW FROM DECK</button>
+                                            </>
+                                            :
+                                            <>
+                                            <button className="DeckDrawBtn" onClick={this.handleDeckShuffle} disabled={this.state.deckDisabled}>SHUFFLE NEW DECK</button>
+                                            </>
+                                        }
                                         <br></br>
                                         Your Cards:
                                     </div>
@@ -359,7 +500,16 @@ class Game extends Component {
                         </div>
                         <div className="Deck">
                             Top Deck Card:
-                            <img className="DeckCard" src={'./Cards/'+this.state.Deck[this.state.Deck.length-1].Title} alt={'UNO Deck Card'}></img>
+                            {
+                                this.state.Deck.length > 0 ? 
+                                <>
+                                    <img className="DeckCard" src={'./Cards/'+this.state.Deck[this.state.Deck.length-1].Title} alt={'UNO Deck Card'}></img>
+                                </>
+                                :
+                                <>
+                                </>
+                            }
+                            
                         </div>
                     </div> 
                 {/* </div> */}
