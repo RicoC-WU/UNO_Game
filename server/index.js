@@ -213,13 +213,13 @@ io.on('connection', function(socket){
       let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
       if(parseInt(data["roomtype"]) === 2){
         Players2Rooms[roomindex].players = data["OrrUsers"];
-        socket.to(data["roomname"]).emit("getroundinfo",{players: Players2Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"]})
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players2Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]})
       }else if(parseInt(data["roomtype"]) === 3){
         Players3Rooms[roomindex].players = data["OrrUsers"];
-        socket.to(data["roomname"]).emit("getroundinfo",{players: Players3Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"]})
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players3Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]})
       }else if(parseInt(data["roomtype"]) === 4){
         Players4Rooms[roomindex].players = data["OrrUsers"];
-        socket.to(data["roomname"]).emit("getroundinfo",{players: Players4Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"]})
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players4Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]})
       }
     });
 
@@ -249,6 +249,17 @@ io.on('connection', function(socket){
       }else if(parseInt(data["roomtype"]) === 4){
         Players4Rooms[roomindex].deck = newDeck;
         io.to(data["roomname"]).emit("emptytrash",{newDeck: Players4Rooms[roomindex].deck});
+      }
+    })
+
+    socket.on("changeWildColor",function(data){
+      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      if(parseInt(data["roomtype"]) === 2){
+        socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
+      }else if(parseInt(data["roomtype"]) === 3){
+        socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
+      }else if(parseInt(data["roomtype"]) === 4){
+        socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
       }
     })
 

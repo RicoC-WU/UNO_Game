@@ -19,13 +19,16 @@ class Game extends Component {
             selDisabled: true,
             deckDisabled: true,
             currpile: ['','',''],
-            tr_index: 0
+            tr_index: 0,
+            mustDraw: false,
+            wildColor: '',
+            reverse: false
         }
         this.handleCardClick = this.handleCardClick.bind(this);
         this.handleDealCard = this.handleDealCard.bind(this);
-        // this.handleCardPosition = this.handleCardPosition.bind(this);
         this.handleDeckCardDeal = this.handleDeckCardDeal.bind(this);
         this.handleDeckShuffle = this.handleDeckShuffle.bind(this);
+        this.handleWildCard = this.handleWildCard.bind(this);
 
     }
     
@@ -91,7 +94,7 @@ class Game extends Component {
             let trashcards = document.getElementsByClassName("trashcard");
             let tr_index = data["tr_index"];
 
-            console.log(tr_index);
+            // console.log(tr_index);
             
             // console.log(AllUsers);
             for(let i = 0; i < trashcards.length; i++){
@@ -100,13 +103,13 @@ class Game extends Component {
             }
 
             if(trashcards.length === 3){
-                if(tr_index == 1){
+                if(tr_index === 1){
                     trashcards[2].style.zIndex = 1;
                 }
-                if(tr_index == 2){
+                if(tr_index === 2){
                     trashcards[0].style.zIndex = 1;
                 }
-                if(tr_index == 0){
+                if(tr_index === 0){
                     trashcards[1].style.zIndex = 1;
                 }
             }
@@ -122,8 +125,14 @@ class Game extends Component {
                 trash: data["trash"],
                 currpile: data["currpile"],
                 tr_index: data["tr_index"],
-                currTurn: data["currTurn"]
+                currTurn: data["currTurn"],
+                wildColor: ''
             }, ()=>{
+                if(self.state.reverse === !data["reverse"]){
+                    self.setState({
+                        reverse: data["reverse"]
+                    })
+                }
                 if(self.state.currTurn === self.state.currentUser){
                     self.setState({
                         deckDisabled: false
@@ -189,6 +198,20 @@ class Game extends Component {
                 tr_index: 0
             })
         })
+
+        socket.on("setWildColor",function(data){
+            self.setState({
+                currTurn: data["currTurn"],
+                wildColor: data["wildColor"]
+            },()=>{
+                if(self.state.currTurn === self.state.currentUser){
+                    self.setState({
+                        deckDisabled: false
+                    })
+                }
+            })
+
+        })
     }
     
 
@@ -234,11 +257,22 @@ class Game extends Component {
         let cards = Array.from(document.querySelectorAll('[id^="YourCards"]'));
         // console.log(selectedcard);
         let index = Array.from(cards).indexOf(selectedcard);
+        let currcard = this.state.UserCards[index];
+        //let wildstatus = currcard.WildStatus;
+
+        let playerindex = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currentUser));
+        let OrrUsers = this.state.OrrUsers;
+        let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
         
         if(this.state.trash.length > 0){
-            let currcard = this.state.UserCards[index];
+            
             let toptrashcard = this.state.trash[this.state.trash.length-1];
-            if(currcard.Color !== "Black" && toptrashcard.Color !== "Black"){
+            if(this.state.wildColor !== ''){
+                if((currcard.Color !== this.state.wildColor && currcard.Color !== "Black")){
+                    return;
+                }
+            }
+            else if(currcard.Color !== "Black" && toptrashcard.Color !== "Black"){
                 //if it's a draw card
                 if(toptrashcard.DrawStatus){
                     if(currcard.DrawStatus && (currcard.Value !== toptrashcard.Value)){
@@ -265,21 +299,12 @@ class Game extends Component {
             }
         }
 
-        let playerindex = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currentUser));
-        let OrrUsers = this.state.OrrUsers;
         
         // console.log(this.state.UserCards[index]);
         let UserCards = this.state.UserCards;
         let trash = this.state.trash;
         let currpile = this.state.currpile;
         let tr_index = this.state.tr_index;
-
-        let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
-        
-        currind = currind + 1;
-        if(currind === this.state.OrrUsers.length){
-            currind = 0;
-        }
 
         // console.log(currpile);
         // console.log(tr_index);
@@ -290,7 +315,7 @@ class Game extends Component {
         // if(trashcards.length > 0){
             for(let i = 0; i < trashcards.length; i++){
                 // if(trashcards[i]){
-                console.log(trashcards[i].style.zIndex);
+                // console.log(trashcards[i].style.zIndex);
                 trashcards[i].style.zIndex = 0;
                 // }
             }
@@ -298,17 +323,17 @@ class Game extends Component {
                 if(trashcards[tr_index]){
                     trashcards[tr_index].style.zIndex = 2;
                 }
-                if(tr_index == 0){
+                if(tr_index === 0){
                     if(trashcards[2]){
                         trashcards[2].style.zIndex = 1;
                     }
                 }
-                if(tr_index == 1){
+                if(tr_index === 1){
                     if(trashcards[0]){
                         trashcards[0].style.zIndex = 1;
                     }
                 }
-                if(tr_index == 2){
+                if(tr_index === 2){
                     if(trashcards[1]){
                         trashcards[1].style.zIndex = 1;
                     }
@@ -321,15 +346,17 @@ class Game extends Component {
         if(tr_index === 3){
             tr_index = 0;
         }
-        
-        // console.log("nigaaaa")
+
         UserCards.splice(index, 1);
         OrrUsers[playerindex].usercards = UserCards;
-        // console.log(this.state.AllUsers);
-        // console.log(this.state.OrrUsers);
+
+
+
+
         this.setState({
             OrrUsers: OrrUsers,
-            currTurn: OrrUsers[currind].username,
+            // currTurn: OrrUsers[currind].username,
+            wildColor: '',
             UserCards: UserCards,
             trash: trash,
             currpile: currpile,
@@ -340,14 +367,88 @@ class Game extends Component {
                 cards[j].style.borderRadius = '10px';
                 cards[j].className = "unselected";
             }
-            this.setState({
-                selDisabled: true,
-                deckDisabled: true
-            })
-            socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, /*Deck: this.state.Deck,*/ 
-            trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn})
+            if(currcard.WildStatus){
+                document.getElementsByClassName("cover")[0].style.display = "grid";
+                socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
+                trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, reverse: this.state.reverse})
+            }else if(currcard.ReverseStatus){
+                this.setState({
+                    reverse: !this.state.reverse
+                },()=>{
+                    if(!this.state.reverse){
+                        currind = currind + 1;
+                    }else{
+                        currind = currind - 1;
+                    }
+
+                    if(currind === this.state.OrrUsers.length){
+                        currind = 0;
+                    }else if(currind < 0){
+                        currind = this.state.OrrUsers.length - 1;
+                    }
+                    this.setState({
+                        selDisabled: true,
+                        deckDisabled: true,
+                        currTurn: OrrUsers[currind].username
+                    },()=>{
+                        socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
+                        trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, reverse: this.state.reverse})
+                    })
+                })
+                
+                
+            }else{
+                if(!this.state.reverse){
+                    currind = currind + 1;
+                }else{
+                    currind = currind - 1;
+                }
+
+                if(currind === this.state.OrrUsers.length){
+                    currind = 0;
+                }else if(currind < 0){
+                    currind = this.state.OrrUsers.length - 1;
+                }
+                this.setState({
+                    selDisabled: true,
+                    deckDisabled: true,
+                    currTurn: OrrUsers[currind].username
+                },()=>{
+                    socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
+                    trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, reverse: this.state.reverse})
+                })
+            }
+            
         })
 
+    }
+
+    handleWildCard(color){ 
+        const socket = this.props.socket;
+        let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
+        
+        if(!this.state.reverse){
+            currind = currind + 1;
+        }else{
+            currind = currind - 1;
+        }
+
+        if(currind === this.state.OrrUsers.length){
+            currind = 0;
+        }else if(currind < 0){
+            currind = this.state.OrrUsers.length - 1;
+        }
+
+        this.setState({
+            deckDisabled: true,
+            selDisabled: true,
+            currTurn: this.state.OrrUsers[currind].username,
+            wildColor: color
+        },()=>{
+            document.getElementsByClassName("cover")[0].style.display = "none";
+            socket.emit("changeWildColor", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, wildColor: this.state.wildColor})
+        })
+        
     }
 
     componentDidUpdate(){
@@ -369,15 +470,22 @@ class Game extends Component {
 
         OrrUsers[playerindex].usercards = UserCards;
 
-        currind = currind + 1;
+        if(!this.state.reverse){
+            currind = currind + 1;
+        }else{
+            currind = currind - 1;
+        }
+
         if(currind === this.state.OrrUsers.length){
             currind = 0;
+        }else if(currind < 0){
+            currind = this.state.OrrUsers.length - 1;
         }
 
         this.setState({
             OrrUsers: OrrUsers,
             Deck: Deck,
-            currTurn: OrrUsers[currind].username,
+            // currTurn: OrrUsers[currind].username,
             UserCards: UserCards
         },()=>{
 
@@ -388,7 +496,7 @@ class Game extends Component {
             }
             this.setState({
                 selDisabled: true,
-                deckDisabled: true
+                // deckDisabled: true
             })
 
             socket.emit("userpickdeck",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, Deck: this.state.Deck, 
@@ -399,12 +507,8 @@ class Game extends Component {
 
     handleDeckShuffle(){
         const socket = this.props.socket; 
-        // let playerindex = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currentUser));
-        // let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
-
         socket.emit("shufflenewdeck",{roomtype: this.state.RoomType, roomname: this.state.RoomName, 
         trash: this.state.trash})
-        
     }
 
     render(){
@@ -416,103 +520,113 @@ class Game extends Component {
                 </> 
                 : 
                 <>
-                {/* <div> */}
-                    {/* {JSON.stringify(this.state.UserCards)} */}
-                    {/* <div className="playercards">
-                    {this.state.UserCards.map((Card)=>(
-                        <img src={'./Cards/'+Card.Title} alt={Card.Title}></img>
-                    ))} */}
-                    <div className={"AllPlayers"+this.state.RoomType}>
-                        {this.state.AllUsers.map((Player)=>(
-                            <div id={"playernext"+this.state.AllUsers.indexOf(this.state.AllUsers.find(newPlayer => newPlayer.username === Player.username))}>
-                                
-                                {
-                                    Player.username === sessionStorage.getItem("UserLogged") ? 
-                                    <div className="WhoCards">
-                                        <button className="selectBtn" onClick={this.handleDealCard} disabled={this.state.selDisabled}>SELECT</button>
-                                        {this.state.Deck.length > 0 ? 
-                                            <>
-                                            <button className="DeckDrawBtn" onClick={this.handleDeckCardDeal} disabled={this.state.deckDisabled}>DRAW FROM DECK</button>
-                                            </>
-                                            :
-                                            <>
-                                            <button className="DeckDrawBtn" onClick={this.handleDeckShuffle} disabled={this.state.deckDisabled}>SHUFFLE NEW DECK</button>
-                                            </>
-                                        }
-                                        <br></br>
-                                        Your Cards:
-                                    </div>
-                                    :
-                                    <div className="WhoCards">
-                                        {Player.username}'s Cards:
-                                    </div>
-                                }
-                                <div className={"playercards"} id={"cards"+this.state.AllUsers.indexOf(this.state.AllUsers.find(newPlayer => newPlayer.username === Player.username))}>
-                                {Player.usercards.map((Card)=>(
-                                    <>
-                                    
-                                    
-                                        {
-                                            Player.username === sessionStorage.getItem("UserLogged") ? 
-                                            <>
-                                              
-                                              <img id={"YourCards"+Player.usercards.indexOf(Card)} src={'./Cards/'+Card.Title} alt={Card.Title} onClick={this.handleCardClick} ></img>
-                                            </> 
-                                            : 
-                                            <>  
-                                                <img id={"OtherUserCards"+Player.usercards.indexOf(Card)} src={'./Cards/UNOdefault.png'} alt={'UNO Default Card'}></img>
-                                            </>
-                                        }
-
-                                    </>
-                                ))}
-                                </div>
-                            </div>
-                        ))}
-                        {
-                        <>
-                        {this.state.RoomType === "2" ?
-                        <>
-                        <div className="blankspace"></div>
-                        <div className="blankspace"></div>
-                        </>
-                        :
-                        this.state.RoomType === "3" ?
-                        <>
-                        <div className="blankspace"></div>
-                        </>
-                        :
-                        <>
-                        </>
-                        }
-                        </>
-                        }
-                        <div className="trashpile">
-                            {
-                            this.state.currpile[0] !== '' ? <><img className="trashcard" src={'./Cards/'+this.state.currpile[0].Title} alt={'UNO trash Card'}></img></> :<></>
-                            }
-                            {
-                            this.state.currpile[1] !== '' ? <><img className="trashcard" src={'./Cards/'+this.state.currpile[1].Title} alt={'UNO trash Card'}></img></> :<></>
-                            }
-                            {
-                            this.state.currpile[2] !== '' ? <><img className="trashcard" src={'./Cards/'+this.state.currpile[2].Title} alt={'UNO trash Card'}></img></> :<></>
-                            }
-                        </div>
-                        <div className="Deck">
-                            Top Deck Card:
-                            {
-                                this.state.Deck.length > 0 ? 
-                                <>
-                                    <img className="DeckCard" src={'./Cards/'+this.state.Deck[this.state.Deck.length-1].Title} alt={'UNO Deck Card'}></img>
-                                </>
-                                :
-                                <>
-                                </>
-                            }
+                <div className={"AllPlayers"+this.state.RoomType}>
+                    {this.state.AllUsers.map((Player)=>(
+                        <div id={"playernext"+this.state.AllUsers.indexOf(this.state.AllUsers.find(newPlayer => newPlayer.username === Player.username))}>
                             
+                            {
+                                Player.username === sessionStorage.getItem("UserLogged") ? 
+                                <div className="WhoCards">
+                                    <button className="selectBtn" onClick={this.handleDealCard} disabled={this.state.selDisabled}>SELECT</button>
+                                    {this.state.Deck.length > 0 ? 
+                                        <>
+                                        <button className="DeckDrawBtn" onClick={this.handleDeckCardDeal} disabled={this.state.deckDisabled}>DRAW FROM DECK</button>
+                                        </>
+                                        :
+                                        <>
+                                        <button className="DeckDrawBtn" onClick={this.handleDeckShuffle} disabled={this.state.deckDisabled}>SHUFFLE NEW DECK</button>
+                                        </>
+                                    }
+                                    <br></br>
+                                    Your Cards:
+                                </div>
+                                :
+                                <div className="WhoCards">
+                                    {Player.username}'s Cards:
+                                </div>
+                            }
+                            <div className={"playercards"} id={"cards"+this.state.AllUsers.indexOf(this.state.AllUsers.find(newPlayer => newPlayer.username === Player.username))}>
+                            {Player.usercards.map((Card)=>(
+                                <>
+                                
+                                
+                                    {
+                                        Player.username === sessionStorage.getItem("UserLogged") ? 
+                                        <>
+                                            
+                                            <img id={"YourCards"+Player.usercards.indexOf(Card)} src={'./Cards/'+Card.Title} alt={Card.Title} onClick={this.handleCardClick} ></img>
+                                        </> 
+                                        : 
+                                        <>  
+                                            <img id={"OtherUserCards"+Player.usercards.indexOf(Card)} src={'./Cards/UNOdefault.png'} alt={'UNO Default Card'}></img>
+                                        </>
+                                    }
+
+                                </>
+                            ))}
+                            </div>
                         </div>
-                    </div> 
-                {/* </div> */}
+                    ))}
+                    {
+                    <>
+                    {this.state.RoomType === "2" ?
+                    <>
+                    <div className="blankspace"></div>
+                    <div className="blankspace"></div>
+                    </>
+                    :
+                    this.state.RoomType === "3" ?
+                    <>
+                    <div className="blankspace"></div>
+                    </>
+                    :
+                    <>
+                    </>
+                    }
+                    </>
+                    }
+                    <div className="trashpile">
+                        {
+                        this.state.currpile[0] !== '' ? <><img className="trashcard" src={'./Cards/'+this.state.currpile[0].Title} alt={'UNO trash Card'}></img></> :<></>
+                        }
+                        {
+                        this.state.currpile[1] !== '' ? <><img className="trashcard" src={'./Cards/'+this.state.currpile[1].Title} alt={'UNO trash Card'}></img></> :<></>
+                        }
+                        {
+                        this.state.currpile[2] !== '' ? <><img className="trashcard" src={'./Cards/'+this.state.currpile[2].Title} alt={'UNO trash Card'}></img></> :<></>
+                        }
+                    </div>
+                    <div className="Deck">
+                        Top Deck Card ({this.state.Deck.length} left):
+                        {
+                            this.state.Deck.length > 0 && this.state.currTurn === this.state.currentUser ? 
+                            <>
+                                <img className="DeckCard" src={'./Cards/'+this.state.Deck[this.state.Deck.length-1].Title} alt={'UNO Deck Card'}></img>
+                            </>
+                            :
+                            this.state.Deck.length > 0 ?
+                            <>
+                              <img className="DeckCard" src={'./Cards/UNOdefault.png'} alt={'UNO Deck Card'}></img>
+                            </>
+                            :
+                            <>
+                            </>
+                        }
+                        
+                    </div>
+                </div>
+                <div className='cover'> 
+                    <div className="btncontainer">
+                        <button className="colorbtn" id="REDbtn" onClick={()=>this.handleWildCard("Red")}>RED</button>
+                        <button className="colorbtn" id="BLUEbtn" onClick={()=>this.handleWildCard("Blue")}>BLUE</button>
+                        <br/><br/>
+                        <button className="colorbtn" id="YELLOWbtn" onClick={()=>this.handleWildCard("Yellow")}>YELLOW</button>
+                        <button className="colorbtn" id="GREENbtn" onClick={()=>this.handleWildCard("Green")}>GREEN</button>
+                    </div>
+                </div>
+                {
+                    this.state.wildColor !== "" ? <div>The color is now {this.state.wildColor}</div> : <></>
+                }   
                 </>
                 }
            

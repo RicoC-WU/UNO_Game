@@ -14,7 +14,7 @@ body{
   font-family: "Audiowide", sans-serif;
   display: flex;
   position: relative;
-  z-index: 1;
+  z-index: 5;
 }
 
 .interact{
@@ -292,7 +292,10 @@ body{
 }
 
 .Footer{
-  background-image: linear-gradient(to top, brown, rgb(168, 92, 0),orange,yellow)
+  z-index: 5;
+  position: relative;
+  width: 100%;
+  background-image: linear-gradient(to top, brown, rgb(168, 92, 0),orange,yellow);
 }
 
 .playercards{
@@ -476,4 +479,80 @@ body{
 }
 .trashcard:nth-child(2){
   z-index: 2;
+}
+
+.cover{
+  display: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 2;
+  /* display: grid; */
+  place-items: center;
+}
+
+.colorbtn{
+  width: 200px;
+  display: inline;
+  line-height: 100px;
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-size: 30px;
+}
+
+.colorbtn:hover{
+  cursor: pointer;
+  transform: translateY(-2px);
+}
+
+#REDbtn,#YELLOWbtn{
+  margin-right: 15px;
+}
+
+#REDbtn{
+  background-color: Red;
+  box-shadow: 0px 6px darkred;
+  margin-left: 5px;
+  margin-top: 2px;
+}
+#REDbtn:active{
+  transform: translateY(4px);
+  box-shadow: 0px 2px darkred;
+}
+#BLUEbtn{
+  background-color: Blue;
+  box-shadow: 0px 6px darkblue;
+  margin-right: 5px;
+}
+#BLUEbtn:active{
+  transform: translateY(4px);
+  box-shadow: 0px 2px darkblue; 
+}
+#GREENbtn{
+  background-color: Green;
+  box-shadow: 0px 6px darkgreen;
+  margin-bottom: 8px;
+}
+#GREENbtn:active{
+  transform: translateY(4px);
+  box-shadow: 0px 2px darkgreen; 
+}
+#YELLOWbtn{
+  background-color: Yellow;
+  box-shadow: 0px 6px rgb(194, 194, 1);
+  margin-left: 5px;
+}
+#YELLOWbtn:active{
+  transform: translateY(4px);
+  box-shadow: 0px 2px rgb(194, 194, 1);
+}
+
+.btncontainer{
+  /* border: solid black 5px; */
+  width: max-content;
+  height: max-content;
 }
