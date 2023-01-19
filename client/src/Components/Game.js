@@ -22,7 +22,8 @@ class Game extends Component {
             tr_index: 0,
             mustDraw: false,
             wildColor: '',
-            reverse: false
+            reverse: false,
+            playable: null
         }
         this.handleCardClick = this.handleCardClick.bind(this);
         this.handleDealCard = this.handleDealCard.bind(this);
@@ -30,6 +31,7 @@ class Game extends Component {
         this.handleDeckShuffle = this.handleDeckShuffle.bind(this);
         this.handleWildCard = this.handleWildCard.bind(this);
         this.handleDrawAmount = this.handleDrawAmount.bind(this);
+        this.handlePlayableCheck = this.handlePlayableCheck.bind(this);
 
     }
     
@@ -94,9 +96,7 @@ class Game extends Component {
             let index = self.state.order;
             let trashcards = document.getElementsByClassName("trashcard");
             let tr_index = data["tr_index"];
-            // console.log(tr_index);
-            
-            // console.log(AllUsers);
+
             for(let i = 0; i < trashcards.length; i++){
                 
                 trashcards[i].style.zIndex = 0;
@@ -134,9 +134,7 @@ class Game extends Component {
                     })
                 }
                 if(self.state.currTurn === self.state.currentUser){
-                    self.setState({
-                        deckDisabled: false
-                    })
+                    self.handlePlayableCheck(self);
                 }
 
                 for(let i = 0; i < players.length; i++){
@@ -167,9 +165,10 @@ class Game extends Component {
             },()=>{
                 // if(self.state.Deck.length === 0){
                 if(self.state.currTurn === self.state.currentUser){
-                    self.setState({
-                        deckDisabled: false
-                    })
+                    self.handlePlayableCheck(self);
+                    // self.setState({
+                    //     deckDisabled: false
+                    // })
                 }
                 // }
     
@@ -204,10 +203,11 @@ class Game extends Component {
                 currTurn: data["currTurn"],
                 wildColor: data["wildColor"]
             },()=>{
-                if(self.state.currTurn === self.state.currentUser){
-                    self.setState({
-                        deckDisabled: false
-                    })
+                if(self.state.currTurn === self.state.currentUser){ 
+                    // self.setState({
+                    //     deckDisabled: false
+                    // })
+                    self.handlePlayableCheck(self);
                 }
             })
 
@@ -217,7 +217,8 @@ class Game extends Component {
             if(self.state.currentUser === data["currTurn"]){
                 self.setState({
                     mustDraw: true,
-                    selDisabled: true
+                    selDisabled: true,
+                    deckDisabled: false
                 })
             }
         })
@@ -226,6 +227,9 @@ class Game extends Component {
 
     handleCardClick(event){
         if(this.state.currTurn !== this.state.currentUser){
+            return;
+        }
+        if(this.state.mustDraw){
             return;
         }
 
@@ -283,10 +287,10 @@ class Game extends Component {
             else if(currcard.Color !== "Black" && toptrashcard.Color !== "Black"){
                 //if it's a draw card
                 if(toptrashcard.DrawStatus){
-                    if(currcard.DrawStatus && (currcard.Value !== toptrashcard.Value)){
-                        return;
-                    }
-                    else if((currcard.Color !== toptrashcard.Color)&&(currcard.DrawStatus !== toptrashcard.DrawStatus)){
+                    // if(currcard.DrawStatus && (currcard.Value !== toptrashcard.Value)){
+                    //     return;
+                    // }
+                    if((currcard.Color !== toptrashcard.Color)&&(currcard.DrawStatus !== toptrashcard.DrawStatus)){
                         return;
                     }
                 } //if it's a skip card
@@ -379,6 +383,32 @@ class Game extends Component {
                 socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
                 trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, 
                 reverse: this.state.reverse, mustDraw: false})
+            }else if(currcard.SkipStatus || (currcard.ReverseStatus && this.state.OrrUsers.length === 2)){
+                if(!this.state.reverse){
+                    currind = currind + 2;
+                }else{
+                    currind = currind - 2;
+                }
+                if(currind >= this.state.OrrUsers.length){
+                    currind = currind - this.state.OrrUsers.length;
+                }else if(currind < 0){
+                    currind = currind + this.state.OrrUsers.length
+                }
+                this.setState({
+                    selDisabled: true,
+                    deckDisabled: true,
+                    currTurn: OrrUsers[currind].username
+                },()=>{
+                    if(this.state.currTurn === this.state.currentUser){
+                        // this.setState({
+                        //     deckDisabled: false
+                        // })
+                        this.handlePlayableCheck(this);
+                    }
+                    socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
+                    trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, 
+                    reverse: this.state.reverse, mustDraw: false})
+                })
             }else if(currcard.ReverseStatus){
                 this.setState({
                     reverse: !this.state.reverse
@@ -410,7 +440,7 @@ class Game extends Component {
                 }else{
                     currind = currind - 1;
                 }
-                
+
                 if(currind === this.state.OrrUsers.length){
                     currind = 0;
                 }else if(currind < 0){
@@ -503,37 +533,45 @@ class Game extends Component {
 
         OrrUsers[playerindex].usercards = UserCards;
 
-        if(!this.state.reverse){
-            currind = currind + 1;
-        }else{
-            currind = currind - 1;
-        }
+        if(!this.state.mustDraw){
+            if(!this.state.reverse){
+                currind = currind + 1;
+            }else{
+                currind = currind - 1;
+            }
 
-        if(currind === this.state.OrrUsers.length){
-            currind = 0;
-        }else if(currind < 0){
-            currind = this.state.OrrUsers.length - 1;
+            if(currind === this.state.OrrUsers.length){
+                currind = 0;
+            }else if(currind < 0){
+                currind = this.state.OrrUsers.length - 1;
+            }
         }
 
         this.setState({
             OrrUsers: OrrUsers,
             Deck: Deck,
-            // currTurn: OrrUsers[currind].username,
             UserCards: UserCards
         },()=>{
-
+            this.handlePlayableCheck(this,()=>{;
+                if(!this.state.playable){
+                    this.setState({
+                        currTurn: OrrUsers[currind].username
+                    })
+                }
+            })
+    
             for(let j = 0; j < cards.length; j++){
                 cards[j].style.border = "2px solid black";
                 cards[j].style.borderRadius = '10px';
                 cards[j].className = "unselected";
             }
+
             this.setState({
                 selDisabled: true,
-                // deckDisabled: true
+            },()=>{
+                socket.emit("userpickdeck",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, Deck: this.state.Deck, 
+                currTurn: this.state.currTurn})
             })
-
-            socket.emit("userpickdeck",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, Deck: this.state.Deck, 
-            currTurn: this.state.currTurn})
 
         })
     }
@@ -570,6 +608,61 @@ class Game extends Component {
             socket.emit("userpickdeck",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, Deck: this.state.Deck, 
             currTurn: this.state.currTurn})
         })
+    }
+
+    handlePlayableCheck(self){
+        let UserCards = self.state.UserCards;
+        let count = 0;
+        let toptrashcard = self.state.trash[self.state.trash.length-1];
+        for(let i = 0; i < self.state.UserCards.length; i++){
+            let playable = true;
+            let currcard = UserCards[i];
+            if(this.state.wildColor !== ''){
+                if((currcard.Color !== this.state.wildColor && currcard.Color !== "Black")){
+                    playable = false;
+                }
+            }
+            else if(currcard.Color !== "Black" && toptrashcard.Color !== "Black"){
+                //if it's a draw card
+                if(toptrashcard.DrawStatus){
+                    // if(currcard.DrawStatus && (currcard.Value !== toptrashcard.Value)){
+                    //     playable = false;
+                    // }
+                    if((currcard.Color !== toptrashcard.Color)&&(currcard.DrawStatus !== toptrashcard.DrawStatus)){
+                        playable = false;
+                    }
+                } //if it's a skip card
+                else if(toptrashcard.SkipStatus){
+                    if((currcard.Color !== toptrashcard.Color)&&(currcard.SkipStatus !== toptrashcard.SkipStatus)){
+                        playable = false;
+                    }
+                } //if it's a reverse card
+                else if(toptrashcard.ReverseStatus){
+                    if((currcard.Color !== toptrashcard.Color)&&(currcard.ReverseStatus !== toptrashcard.ReverseStatus)){
+                        playable = false;
+                    }
+                }else{ //if it's a regular number card 
+                    if((currcard.Value !== toptrashcard.Value)&&(currcard.Color !== toptrashcard.Color)){
+                        playable = false;
+                    }
+                }
+            }
+            // console.log(playable);
+            if(playable){
+                count++;
+            }
+        }
+        if(count >= 1){
+            self.setState({
+                deckDisabled: true,
+                playable: true,
+            })
+        }else{
+            self.setState({
+                deckDisabled: false,
+                playable: false,
+            })
+        }
     }
 
     render(){
