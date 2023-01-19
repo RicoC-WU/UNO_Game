@@ -29,6 +29,7 @@ class Game extends Component {
         this.handleDeckCardDeal = this.handleDeckCardDeal.bind(this);
         this.handleDeckShuffle = this.handleDeckShuffle.bind(this);
         this.handleWildCard = this.handleWildCard.bind(this);
+        this.handleDrawAmount = this.handleDrawAmount.bind(this);
 
     }
     
@@ -79,7 +80,7 @@ class Game extends Component {
                     AllUsers: ShiftUsers,
                     currTurn: AllUsers[0].username
                 },()=>{
-                    if(self.state.currTurn === self.state.currentUser){
+                    if(self.state.currTurn === self.state.currentUser && self.state.trash.length > 0){
                         self.setState({
                             deckDisabled: false
                         })
@@ -93,7 +94,6 @@ class Game extends Component {
             let index = self.state.order;
             let trashcards = document.getElementsByClassName("trashcard");
             let tr_index = data["tr_index"];
-
             // console.log(tr_index);
             
             // console.log(AllUsers);
@@ -212,6 +212,15 @@ class Game extends Component {
             })
 
         })
+
+        socket.on("setDraw",function(data){
+            if(self.state.currentUser === data["currTurn"]){
+                self.setState({
+                    mustDraw: true,
+                    selDisabled: true
+                })
+            }
+        })
     }
     
 
@@ -259,7 +268,6 @@ class Game extends Component {
         let index = Array.from(cards).indexOf(selectedcard);
         let currcard = this.state.UserCards[index];
         //let wildstatus = currcard.WildStatus;
-
         let playerindex = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currentUser));
         let OrrUsers = this.state.OrrUsers;
         let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
@@ -305,7 +313,6 @@ class Game extends Component {
         let trash = this.state.trash;
         let currpile = this.state.currpile;
         let tr_index = this.state.tr_index;
-
         // console.log(currpile);
         // console.log(tr_index);
     
@@ -370,7 +377,8 @@ class Game extends Component {
             if(currcard.WildStatus){
                 document.getElementsByClassName("cover")[0].style.display = "grid";
                 socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
-                trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, reverse: this.state.reverse})
+                trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, 
+                reverse: this.state.reverse, mustDraw: false})
             }else if(currcard.ReverseStatus){
                 this.setState({
                     reverse: !this.state.reverse
@@ -392,11 +400,31 @@ class Game extends Component {
                         currTurn: OrrUsers[currind].username
                     },()=>{
                         socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
-                        trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, reverse: this.state.reverse})
+                        trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, 
+                        reverse: this.state.reverse, mustDraw: false})
                     })
+                }) 
+            }else if(currcard.DrawStatus){
+                if(!this.state.reverse){
+                    currind = currind + 1;
+                }else{
+                    currind = currind - 1;
+                }
+                
+                if(currind === this.state.OrrUsers.length){
+                    currind = 0;
+                }else if(currind < 0){
+                    currind = this.state.OrrUsers.length - 1;
+                }
+                this.setState({
+                    selDisabled: true,
+                    deckDisabled: true,
+                    currTurn: OrrUsers[currind].username
+                },()=>{
+                    socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
+                    trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, 
+                    reverse: this.state.reverse, mustDraw: true})
                 })
-                
-                
             }else{
                 if(!this.state.reverse){
                     currind = currind + 1;
@@ -415,7 +443,8 @@ class Game extends Component {
                     currTurn: OrrUsers[currind].username
                 },()=>{
                     socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
-                    trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, reverse: this.state.reverse})
+                    trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, 
+                    reverse: this.state.reverse, mustDraw: false})
                 })
             }
             
@@ -426,7 +455,7 @@ class Game extends Component {
     handleWildCard(color){ 
         const socket = this.props.socket;
         let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
-        
+
         if(!this.state.reverse){
             currind = currind + 1;
         }else{
@@ -446,7 +475,11 @@ class Game extends Component {
             wildColor: color
         },()=>{
             document.getElementsByClassName("cover")[0].style.display = "none";
-            socket.emit("changeWildColor", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, wildColor: this.state.wildColor})
+            if(this.state.trash[this.state.trash.length-1].DrawStatus){
+                socket.emit("changeWildColor", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, wildColor: this.state.wildColor, mustDraw: true})    
+            }else{
+                socket.emit("changeWildColor", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, wildColor: this.state.wildColor, mustDraw: false})
+            }
         })
         
     }
@@ -511,6 +544,34 @@ class Game extends Component {
         trash: this.state.trash})
     }
 
+    handleDrawAmount(){
+        const socket = this.props.socket;
+        let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
+        for(let i = 0 ; i < this.state.trash[this.state.trash.length-1].Value; i++){
+            this.handleDeckCardDeal();
+        }
+        if(!this.state.reverse){
+            currind = currind + 1;
+        }else{
+            currind = currind - 1;
+        }
+
+        if(currind === this.state.OrrUsers.length){
+            currind = 0;
+        }else if(currind < 0){
+            currind = this.state.OrrUsers.length - 1;
+        }
+        this.setState({
+            currTurn: this.state.OrrUsers[currind].username,
+            selDisabled: true,
+            deckDisabled: true,
+            mustDraw: false
+        },()=>{
+            socket.emit("userpickdeck",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName, Deck: this.state.Deck, 
+            currTurn: this.state.currTurn})
+        })
+    }
+
     render(){
         return(
             <div className="UNO_Game">
@@ -528,7 +589,12 @@ class Game extends Component {
                                 Player.username === sessionStorage.getItem("UserLogged") ? 
                                 <div className="WhoCards">
                                     <button className="selectBtn" onClick={this.handleDealCard} disabled={this.state.selDisabled}>SELECT</button>
-                                    {this.state.Deck.length > 0 ? 
+                                    {  this.state.Deck.length > 0 && this.state.mustDraw ? 
+                                        <>
+                                        <button className="DeckDrawBtn" onClick={this.handleDrawAmount} disabled={this.state.deckDisabled}>DRAW {this.state.trash[this.state.trash.length-1].Value} CARDS FROM DECK</button>
+                                        </>
+                                        :
+                                        this.state.Deck.length > 0 ?
                                         <>
                                         <button className="DeckDrawBtn" onClick={this.handleDeckCardDeal} disabled={this.state.deckDisabled}>DRAW FROM DECK</button>
                                         </>
@@ -548,8 +614,6 @@ class Game extends Component {
                             <div className={"playercards"} id={"cards"+this.state.AllUsers.indexOf(this.state.AllUsers.find(newPlayer => newPlayer.username === Player.username))}>
                             {Player.usercards.map((Card)=>(
                                 <>
-                                
-                                
                                     {
                                         Player.username === sessionStorage.getItem("UserLogged") ? 
                                         <>

@@ -16,7 +16,7 @@ var con = mysql.createConnection({
 
 const io = require("socket.io")(http, {
   cors:{
-    origins: ['localhost:3000','192.168.1.105','108.236.64.90','rockjc01.hopto.org'],
+    origins: ['localhost:3000','192.168.1.238','174.86.243.203','rockjc01.hopto.org'],
     // origin: '*',
     methods: ["GET","POST"],
   }
@@ -31,7 +31,7 @@ function Card(Title, Value, Color, WildStatus, DrawStatus, ReverseStatus, SkipSt
   this.WildStatus = WildStatus;
   this.DrawStatus = DrawStatus;
   this.ReverseStatus = ReverseStatus;
-  this.SkipStatus = SkipStatus;
+  this.SkipStatus = SkipStatus; 
 }
 
 let cardFiles = fs.readdirSync(folder);
@@ -213,13 +213,22 @@ io.on('connection', function(socket){
       let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
       if(parseInt(data["roomtype"]) === 2){
         Players2Rooms[roomindex].players = data["OrrUsers"];
-        socket.to(data["roomname"]).emit("getroundinfo",{players: Players2Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]})
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players2Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]});
+        if(data["mustDraw"]){
+          socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
+        }
       }else if(parseInt(data["roomtype"]) === 3){
         Players3Rooms[roomindex].players = data["OrrUsers"];
-        socket.to(data["roomname"]).emit("getroundinfo",{players: Players3Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]})
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players3rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]});
+        if(data["mustDraw"]){
+          socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
+        }
       }else if(parseInt(data["roomtype"]) === 4){
         Players4Rooms[roomindex].players = data["OrrUsers"];
-        socket.to(data["roomname"]).emit("getroundinfo",{players: Players4Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]})
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players4Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]});
+        if(data["mustDraw"]){
+          socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
+        }
       }
     });
 
@@ -256,10 +265,19 @@ io.on('connection', function(socket){
       let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
       if(parseInt(data["roomtype"]) === 2){
         socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
+        if(data["mustDraw"]){
+          socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
+        }
       }else if(parseInt(data["roomtype"]) === 3){
         socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
+        if(data["mustDraw"]){
+          socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
+        }
       }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
+        if(data["mustDraw"]){
+          socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
+        }
       }
     })
 
