@@ -573,10 +573,14 @@ body{
   white-space: pre;
 }
 
-.UNObtn, .Penaltybtn{
+.UNObtnContainer{
   position: absolute;
   top: 18%;
   right: 30%;
+}
+
+.UNObtn, .Penaltybtn{
+  position: absolute;
   border-radius: 50%;
   border: none;
   color: white;

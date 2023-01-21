@@ -6,6 +6,9 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 
 const PORT = process.env.PORT || 3456;
+const CARDNUM = 7;
+const TWOPLAYERS = 2; const THREEPLAYERS = 3; const FOURPLAYERS = 4;
+
 
 var con = mysql.createConnection({
   host: "127.0.0.1",
@@ -159,15 +162,15 @@ io.on('connection', function(socket){
         // console.log(roomname);
         Players2Rooms[Players2Rooms.length-1].players.push({username: data["username"], usercards: [], socketid: socket.id});
         let playercards = [];
-        for(let i = 0; i < 2; i++){
+        for(let i = 0; i < CARDNUM; i++){
           playercards.push(Players2Rooms[Players2Rooms.length-1].deck.pop());
-          if(i == 1){
+          if(i == CARDNUM){
            let index = Players2Rooms[Players2Rooms.length-1].players.length - 1;
            Players2Rooms[Players2Rooms.length-1].players[index].usercards = playercards;
           }
         }
         socket.emit("CardsReceive", {cards: playercards});
-        if(Players2Rooms[Players2Rooms.length-1].players.length == 2){
+        if(Players2Rooms[Players2Rooms.length-1].players.length == TWOPLAYERS){
           io.to(roomname).emit("startGame", {players: Players2Rooms[Players2Rooms.length-1].players, RoomName: roomname, cards: Players2Rooms[Players2Rooms.length-1].deck});
           Players2Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
@@ -176,15 +179,15 @@ io.on('connection', function(socket){
         socket.join(roomname);
         Players3Rooms[Players3Rooms.length-1].players.push({username: data["username"],  usercards: [], socketid: socket.id});
         let playercards = [];
-        for(let i = 0; i < 7; i++){
+        for(let i = 0; i < CARDNUM; i++){
           playercards.push(Players3Rooms[Players3Rooms.length-1].deck.pop());
-          if(i == 6){
+          if(i == CARDNUM-1){
             let index = Players3Rooms[Players3Rooms.length-1].players.length - 1;
             Players3Rooms[Players3Rooms.length-1].players[index].usercards = playercards;
           }
         }
         socket.emit("CardsReceive", {cards: playercards});
-        if(Players3Rooms[Players3Rooms.length-1].players.length == 3){
+        if(Players3Rooms[Players3Rooms.length-1].players.length == THREEPLAYERS){
           io.to(roomname).emit("startGame", {players: Players3Rooms[Players3Rooms.length-1].players, RoomName: roomname, cards: Players3Rooms[Players3Rooms.length-1].deck})
           Players3Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
@@ -193,15 +196,15 @@ io.on('connection', function(socket){
         socket.join(roomname);
         Players4Rooms[Players4Rooms.length-1].players.push({username: data["username"],  usercards: [], socketid: socket.id});
         let playercards = [];
-        for(let i = 0; i < 7; i++){
+        for(let i = 0; i < CARDNUM; i++){
           playercards.push(Players4Rooms[Players4Rooms.length-1].deck.pop());
-          if(i == 6){
+          if(i == CARDNUM-1){
             let index = Players4Rooms[Players4Rooms.length-1].players.length - 1;
             Players4Rooms[Players4Rooms.length-1].players[index].usercards = playercards;
           }
         }
         socket.emit("CardsReceive", {cards: playercards});
-        if(Players4Rooms[Players4Rooms.length-1].players.length == 4){
+        if(Players4Rooms[Players4Rooms.length-1].players.length == FOURPLAYERS){
           io.to(roomname).emit("startGame", {players: Players4Rooms[Players4Rooms.length-1].players, RoomName: roomname, cards: Players4Rooms[Players4Rooms.length-1].deck})
           Players4Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
@@ -211,19 +214,19 @@ io.on('connection', function(socket){
 
     socket.on("userplaycard",function(data){
       let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      if(parseInt(data["roomtype"]) === 2){
+      if(parseInt(data["roomtype"]) === TWOPLAYERS){
         Players2Rooms[roomindex].players = data["OrrUsers"];
         socket.to(data["roomname"]).emit("getroundinfo",{players: Players2Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]});
         if(data["mustDraw"]){
           socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
         }
-      }else if(parseInt(data["roomtype"]) === 3){
+      }else if(parseInt(data["roomtype"]) === THREEPLAYERS){
         Players3Rooms[roomindex].players = data["OrrUsers"];
         socket.to(data["roomname"]).emit("getroundinfo",{players: Players3rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]});
         if(data["mustDraw"]){
           socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
         }
-      }else if(parseInt(data["roomtype"]) === 4){
+      }else if(parseInt(data["roomtype"]) === FOURPLAYERS){
         Players4Rooms[roomindex].players = data["OrrUsers"];
         socket.to(data["roomname"]).emit("getroundinfo",{players: Players4Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]});
         if(data["mustDraw"]){
@@ -234,13 +237,13 @@ io.on('connection', function(socket){
 
     socket.on("userpickdeck", function(data){
       let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      if(parseInt(data["roomtype"]) === 2){
+      if(parseInt(data["roomtype"]) === TWOPLAYERS){
         Players2Rooms[roomindex].players = data["OrrUsers"];
         socket.to(data["roomname"]).emit("getdeckroundinfo",{players: Players2Rooms[roomindex].players, Deck: data["Deck"], currTurn: data["currTurn"]})
-      }else if(parseInt(data["roomtype"]) === 3){
+      }else if(parseInt(data["roomtype"]) === THREEPLAYERS){
         Players3Rooms[roomindex].players = data["OrrUsers"];
         socket.to(data["roomname"]).emit("getdeckroundinfo",{players: Players3Rooms[roomindex].players, Deck: data["Deck"], currTurn: data["currTurn"]})
-      }else if(parseInt(data["roomtype"]) === 4){
+      }else if(parseInt(data["roomtype"]) === FOURPLAYERS){
         Players4Rooms[roomindex].players = data["OrrUsers"];
         socket.to(data["roomname"]).emit("getdeckroundinfo",{players: Players4Rooms[roomindex].players, Deck: data["Deck"], currTurn: data["currTurn"]})
       }
@@ -249,47 +252,47 @@ io.on('connection', function(socket){
     socket.on("shufflenewdeck",function(data){
       let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
       let newDeck = shuffleArray(JSON.parse(JSON.stringify(data["trash"])));
-      if(parseInt(data["roomtype"]) === 2){
+      if(parseInt(data["roomtype"]) === TWOPLAYERS){
         Players2Rooms[roomindex].deck = newDeck;
         io.to(data["roomname"]).emit("emptytrash",{newDeck: Players2Rooms[roomindex].deck});
-      }else if(parseInt(data["roomtype"]) === 3){
+      }else if(parseInt(data["roomtype"]) === THREEPLAYERS){
         Players3Rooms[roomindex].deck = newDeck;
         io.to(data["roomname"]).emit("emptytrash",{newDeck: Players3Rooms[roomindex].deck});
-      }else if(parseInt(data["roomtype"]) === 4){
+      }else if(parseInt(data["roomtype"]) === FOURPLAYERS){
         Players4Rooms[roomindex].deck = newDeck;
         io.to(data["roomname"]).emit("emptytrash",{newDeck: Players4Rooms[roomindex].deck});
       }
     })
 
     socket.on("changeWildColor",function(data){
-      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      if(parseInt(data["roomtype"]) === 2){
+      // let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      // if(parseInt(data["roomtype"]) === 2){
+      //   socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
+      //   if(data["mustDraw"]){
+      //     socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
+      //   }
+      // }else if(parseInt(data["roomtype"]) === 3){
+      //   socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
+      //   if(data["mustDraw"]){
+      //     socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
+      //   }
+      // }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
         if(data["mustDraw"]){
           socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
         }
-      }else if(parseInt(data["roomtype"]) === 3){
-        socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
-        if(data["mustDraw"]){
-          socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
-        }
-      }else if(parseInt(data["roomtype"]) === 4){
-        socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
-        if(data["mustDraw"]){
-          socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
-        }
-      }
+      // }
     })
 
     socket.on("UNOfail",function(data){
-      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      if(parseInt(data["roomtype"]) === 2){
+      // let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      // if(parseInt(data["roomtype"]) === 2){
+      //   socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
+      // }else if(parseInt(data["roomtype"]) === 3){
+      //   socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
+      // }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
-      }else if(parseInt(data["roomtype"]) === 3){
-        socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
-      }else if(parseInt(data["roomtype"]) === 4){
-        socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
-      }
+      // }
     });
 
     socket.on("penalizeuser",function(data){
@@ -310,25 +313,57 @@ io.on('connection', function(socket){
     })
 
     socket.on("UNOdeclared",function(data){
-      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      if(parseInt(data["roomtype"]) === 2){
+      // let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      // if(parseInt(data["roomtype"]) === 2){
+      //   socket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
+      // }else if(parseInt(data["roomtype"]) === 3){
+      //   ssocket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
+      // }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
-      }else if(parseInt(data["roomtype"]) === 3){
-        ssocket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
-      }else if(parseInt(data["roomtype"]) === 4){
-        socket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
-      }
+      // }
     })
 
     socket.on("GameOver",function(data){
-      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      if(parseInt(data["roomtype"]) === 2){
+      // let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      // if(parseInt(data["roomtype"]) === 2){
+      //   socket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
+      // }else if(parseInt(data["roomtype"]) === 3){
+      //   ssocket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
+      // }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
-      }else if(parseInt(data["roomtype"]) === 3){
-        ssocket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
-      }else if(parseInt(data["roomtype"]) === 4){
-        socket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
-      }
+      // }
+    })
+
+    socket.on("UpdateWinCount",function(data){
+      let sql = "SELECT id FROM users WHERE username = ?";
+      let username = [
+        [data["user"]]
+      ];
+      let id;
+      con.query(sql, [username], function(err,result){
+        if (err) throw err;
+        id = result[0].id;
+        let sql2 = "UPDATE users SET wins = wins + 1 WHERE id = " + id;
+        con.query(sql2,function(err,result){
+          if(err) throw err;
+        })
+      })
+    })
+
+    socket.on("UpdateLossCount",function(data){
+      let sql = "SELECT id FROM users WHERE username = ?";
+      let username = [
+        [data["user"]]
+      ];
+      let id;
+      con.query(sql, [username], function(err,result){
+        if (err) throw err;
+        id = result[0].id;
+        let sql2 = "UPDATE users SET losses = losses + 1 WHERE id = " + id;
+        con.query(sql2,function(err,result){
+          if(err) throw err;
+        })
+      })
     })
 
 });

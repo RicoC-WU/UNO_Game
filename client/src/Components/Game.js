@@ -109,13 +109,6 @@ class Game extends Component {
             let trashcards = document.getElementsByClassName("trashcard");
             let tr_index = data["tr_index"];
 
-            // let drawamt = document.getElementsByClassName("drawstatus");
-            // if(drawamt !== null){
-            //     document.getElementsByClassName("drawstatus")[0].style.display = "inline";
-            // }
-
-            // if(document.getElementsByClassName("drawstatus")){ document.getElementsByClassName("drawstatus")[0].style.display = "inline"};
-
             for(let i = 0; i < trashcards.length; i++){
                 
                 trashcards[i].style.zIndex = 0;
@@ -261,7 +254,7 @@ class Game extends Component {
                         self.setState({
                             penaltyuser: ''
                         })
-                    }, 2000)
+                    }, 3000)
                 })
             // }
         })
@@ -305,6 +298,8 @@ class Game extends Component {
         socket.on("setWinner",function(data){
             self.setState({
                 winner: data["winner"]
+            },()=>{
+                socket.emit("UpdateLossCount",{user: self.state.currentUser})
             })
         })
     }
@@ -472,6 +467,7 @@ class Game extends Component {
                     winner: this.state.currentUser
                 },()=>{
                     socket.emit("GameOver", {winner: this.state.winner, roomtype: this.state.RoomType, roomname: this.state.RoomName})
+                    socket.emit("UpdateWinCount",{user: this.state.currentUser})
                 })
             }else{
                 for(let j = 0; j < cards.length; j++){
@@ -861,32 +857,32 @@ class Game extends Component {
                 : 
                 <>
                 <div className="GameInfo">
-                {this.state.currTurn === this.state.currentUser ? <div className="currTurn">Your Turn!</div> : <div className="currTurn">{this.state.currTurn}'s Turn!</div>}
-                
-                {this.state.trash.length > 1 && this.state.trash[this.state.trash.length-1].ReverseStatus ? <div className="reversestatus">UNO REVERSE!</div> : <div></div>}
+                    {this.state.currTurn === this.state.currentUser ? <div className="currTurn">Your Turn!</div> : <div className="currTurn">{this.state.currTurn}'s Turn!</div>}
+                    
+                    {this.state.trash.length > 1 && this.state.trash[this.state.trash.length-1].ReverseStatus ? <div className="reversestatus">UNO REVERSE!</div> : <div></div>}
 
-                {this.state.wildColor !== "" ? <div>The color is now {this.state.wildColor}</div> : <div></div>}   
+                    {this.state.wildColor !== "" ? <div>The color is now {this.state.wildColor}</div> : <div></div>}   
 
-                {this.state.trash[this.state.trash.length-1].DrawStatus 
-                && (this.state.drawTurn || this.state.mustDraw) ? <div className="drawstatus">DRAW {this.state.trash[this.state.trash.length-1].Value}!</div> : <div></div>}
+                    {this.state.trash[this.state.trash.length-1].DrawStatus 
+                    && (this.state.drawTurn || this.state.mustDraw) ? <div className="drawstatus">DRAW {this.state.trash[this.state.trash.length-1].Value}!</div> : <div></div>}
 
-                {this.state.trash.length > 1 && this.state.trash[this.state.trash.length-1].SkipStatus ? <div className="skipstatus">TURN SKIP!</div> : <div></div>} 
+                    {this.state.trash.length > 1 && this.state.trash[this.state.trash.length-1].SkipStatus ? <div className="skipstatus">TURN SKIP!</div> : <div></div>} 
 
-                {/* <div className="drawstatus">DRAW {this.state.trash[this.state.trash.length-1].Value} </div> */}
-                {this.state.UNOdec !== "" ? <div className="UNOdeclared">{this.state.UNOdec} has declared UNO!</div> : <div></div>}
-                
-                {
-                    this.state.penaltyuser !== '' ? <><button className="Penaltybtn" onClick={this.handleUNOPenalty}>PENALIZE</button></> : this.state.UserCards.length === 2 && this.state.currTurn === this.state.currentUser && !this.state.mustDraw && this.state.playable? 
-                    <button className="UNObtn" onClick={()=>this.setState({UNOdec: this.state.currentUser},()=>{this.props.socket.emit("UNOdeclared",{UNOdec: this.state.UNOdec, roomtype: this.state.RoomType, roomname: this.state.RoomName})})}>UNO</button> 
-                    :<><button className="UNObtn" disabled={true}>UNO</button> </> 
-                }
-                {this.state.winner ? 
-                <div className="winner">
-                    The Winner is {this.state.winner}!
-                </div>
-                :
-                <></>
-                }
+                    {this.state.UNOdec !== "" ? <div className="UNOdeclared">{this.state.UNOdec} has declared UNO!</div> : <div></div>}
+                  
+                    {
+                        this.state.penaltyuser !== '' ? <div className='UNObtnContainer'><button className="Penaltybtn" onClick={this.handleUNOPenalty}>PENALIZE</button></div> : this.state.UserCards.length === 2 && this.state.currTurn === this.state.currentUser && !this.state.mustDraw && this.state.playable? 
+                        <div className='UNObtnContainer'><button className="UNObtn" onClick={()=>this.setState({UNOdec: this.state.currentUser},()=>{this.props.socket.emit("UNOdeclared",{UNOdec: this.state.UNOdec, roomtype: this.state.RoomType, roomname: this.state.RoomName})})}>UNO</button></div> 
+                        :<div className='UNObtnContainer'><button className="UNObtn" disabled={true}>UNO</button> </div> 
+                    
+                    }
+                    {this.state.winner ? 
+                    <div className="winner">
+                        The Winner is {this.state.winner}!
+                    </div>
+                    :
+                    <></>
+                    }
                 </div>
                 
                 <div className={"AllPlayers"+this.state.RoomType}>
