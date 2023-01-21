@@ -159,9 +159,9 @@ io.on('connection', function(socket){
         // console.log(roomname);
         Players2Rooms[Players2Rooms.length-1].players.push({username: data["username"], usercards: [], socketid: socket.id});
         let playercards = [];
-        for(let i = 0; i < 7; i++){
+        for(let i = 0; i < 2; i++){
           playercards.push(Players2Rooms[Players2Rooms.length-1].deck.pop());
-          if(i == 6){
+          if(i == 1){
            let index = Players2Rooms[Players2Rooms.length-1].players.length - 1;
            Players2Rooms[Players2Rooms.length-1].players[index].usercards = playercards;
           }
@@ -278,6 +278,56 @@ io.on('connection', function(socket){
         if(data["mustDraw"]){
           socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
         }
+      }
+    })
+
+    socket.on("UNOfail",function(data){
+      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      if(parseInt(data["roomtype"]) === 2){
+        socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
+      }else if(parseInt(data["roomtype"]) === 3){
+        socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
+      }else if(parseInt(data["roomtype"]) === 4){
+        socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
+      }
+    });
+
+    socket.on("penalizeuser",function(data){
+      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      if(parseInt(data["roomtype"]) === 2){
+        Players2Rooms[roomindex].players = data["OrrUsers"];
+        Players2Rooms[roomindex].deck = data["Deck"];
+        socket.to(data["roomname"]).emit("addpenalty",{penaltyuser: data["penaltyuser"], players: Players2Rooms[roomindex].players, Deck: Players2Rooms[roomindex].deck});
+      }else if(parseInt(data["roomtype"]) === 3){
+        Players3Rooms[roomindex].players = data["OrrUsers"];
+        Players3Rooms[roomindex].deck = data["Deck"];
+        socket.to(data["roomname"]).emit("addpenalty",{penaltyuser: data["penaltyuser"], players: Players3Rooms[roomindex].players, Deck: Players3Rooms[roomindex].deck});
+      }else if(parseInt(data["roomtype"]) === 4){
+        Players4Rooms[roomindex].players = data["OrrUsers"];
+        Players4Rooms[roomindex].deck = data["Deck"];
+        socket.to(data["roomname"]).emit("addpenalty",{penaltyuser: data["penaltyuser"], players: Players4Rooms[roomindex].players, Deck: Players4Rooms[roomindex].deck});
+      }
+    })
+
+    socket.on("UNOdeclared",function(data){
+      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      if(parseInt(data["roomtype"]) === 2){
+        socket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
+      }else if(parseInt(data["roomtype"]) === 3){
+        ssocket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
+      }else if(parseInt(data["roomtype"]) === 4){
+        socket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
+      }
+    })
+
+    socket.on("GameOver",function(data){
+      let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
+      if(parseInt(data["roomtype"]) === 2){
+        socket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
+      }else if(parseInt(data["roomtype"]) === 3){
+        ssocket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
+      }else if(parseInt(data["roomtype"]) === 4){
+        socket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
       }
     })
 
