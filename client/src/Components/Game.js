@@ -45,6 +45,7 @@ class Game extends Component {
     componentDidMount(){
         const self = this;
         const socket = this.props.socket;
+        window.sessionStorage.removeItem("joining");
         if(this.state.currentUser === null || this.state.joinGame === null){
             // window.sessionStorage.removeItem("joining");
             window.location.assign('/');
@@ -301,6 +302,13 @@ class Game extends Component {
             },()=>{
                 socket.emit("UpdateLossCount",{user: self.state.currentUser})
             })
+        })
+
+        socket.on("PlayerLeft",function(data){
+            alert("A player as left the game. Redirecting...");
+            setTimeout(function(){
+                window.location.assign("/");
+            }, 5000);
         })
     }
     

@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import 'socket.io-client';
 // import LoginForm from './Login';
 // import SignUpForm from './SignUp';
 
@@ -8,10 +9,19 @@ class Home extends Component {
     this.state = {
       currentUser: window.sessionStorage.getItem("UserLogged")
     }
+    // this.checkInGame = this.checkInGame.bind(this);
   }
 
   componentDidMount(){
     window.sessionStorage.removeItem("joining");
+    const socket = this.props.socket;
+    socket.on("AlreadyInRoom",function(){
+      alert("You are already in another game session.")
+    })
+    socket.on("ReadyPlayer",function(data){
+      window.sessionStorage.setItem("joining",data["roomtype"]);
+      window.location.assign('/Game');
+    })
   }
 
   render(){
@@ -33,9 +43,13 @@ class Home extends Component {
             </>
             :
             <>
-            <div className="btn_prnt"><a href="/Game"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","2Player")}>PLAY 2-PLAYER GAME</button></a></div>
-            <div className="btn_prnt"><a href="/Game"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","3Player")}>PLAY 3-PLAYER GAME</button></a></div>
-            <div className="btn_prnt"><a href="/Game"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","4Player")}>PLAY 4-PLAYER GAME</button></a></div>
+            {/* <div className="btn_prnt" id="2Player"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","2Player")}>PLAY 2-PLAYER GAME</button></div>
+            <div className="btn_prnt" id="3Player"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","3Player")}>PLAY 3-PLAYER GAME</button></div>
+            <div className="btn_prnt" id="4Player"><button className="play_btn" onClick={()=>window.sessionStorage.setItem("joining","4Player")}>PLAY 4-PLAYER GAME</button></div> */}
+            <div className="btn_prnt" id="2Player"><button className="play_btn" onClick={()=>this.props.socket.emit("checkInGame",{username: this.state.currentUser, roomtype: "2Player"})}>PLAY 2-PLAYER GAME</button></div>
+            <div className="btn_prnt" id="3Player"><button className="play_btn" onClick={()=>this.props.socket.emit("checkInGame",{username: this.state.currentUser, roomtype: "3Player"})}>PLAY 3-PLAYER GAME</button></div>
+            <div className="btn_prnt" id="4Player"><button className="play_btn" onClick={()=>this.props.socket.emit("checkInGame",{username: this.state.currentUser, roomtype: "4Player"})}>PLAY 4-PLAYER GAME</button></div>
+           
             </>
           }
         </div>

@@ -19,7 +19,7 @@ class App extends Component {
       <div className="App">
         <Nav/>
         <Routes>
-            <Route path="/" element={<Home/>}/>
+            <Route path="/" element={<Home socket={this.props.socket}/>}/>
             <Route path="/About" element={<About/>}/>
             <Route path="/Login" element={<LoginForm socket={this.props.socket}/>}/>
             <Route path="/SignUp" element={<SignUpForm socket={this.props.socket}/>}/>

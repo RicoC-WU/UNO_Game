@@ -116,8 +116,6 @@ async function comparePassword(socket,UserInfo,userEnter,textPass){
 
 
 io.on('connection', function(socket){
-    // console.log("A client conencted "+socket.id);
-   
     socket.emit("printSocket", {socketid: socket.id});
 
     socket.on("RegisterUser",function(data){
@@ -149,8 +147,54 @@ io.on('connection', function(socket){
       })
     })
 
-    socket.on('disconnect', function(){
-        // console.log(`A client with id ${socket.id} disconnected`);
+    socket.on('disconnecting', function(){
+        if(Array.from(socket.rooms).length < 2){
+          return;
+        }
+        let roomname = Array.from(socket.rooms)[1];
+        let roomindex = parseInt(roomname.substring(1).replace( /^\D+/g, ''));
+        let roomtype = roomname[0];
+        let Username;
+        let playerindex;
+        socket.to(roomname).emit("PlayerLeft");
+        if(roomtype === '2'){
+          Username = Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
+          playerindex = Players2Rooms[roomindex].players.indexOf(Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id));
+          Players2Rooms[roomindex].players.splice(playerindex,1);
+        }else if(roomtype === '3'){
+          Username = Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
+          if(Players3Rooms[roomindex].players.length !== THREEPLAYERS){
+            Players3Rooms.slice(roomindex,1);
+          }
+        }else if(roomtype === '4'){
+          Username = Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
+          if(Players4Rooms[roomindex].players.length !== FOURPLAYERS){
+            Players4Rooms.slice(roomindex,1);
+          }
+        }
+        let UserQuery = [
+          [Username]
+        ];
+        let sql = "UPDATE users SET inGame = FALSE where username = ?"
+        con.query(sql, [UserQuery], function(err,result){
+          if (err) throw err;
+        })
+    });
+
+    socket.on('checkInGame',function(data){
+      let sql = "SELECT inGame FROM users WHERE username = ?";
+      let username = [
+        [data["username"]]
+      ];
+      con.query(sql, [username], function(err,result){
+        if (err) throw err;
+        let inGame = result[0].inGame;
+        if(inGame === 1){
+          socket.emit("AlreadyInRoom");
+        }else if(inGame === 0){
+          socket.emit("ReadyPlayer",{roomtype: data["roomtype"]})
+        }
+      })
     });
 
     socket.on('joinroom', function(data){
@@ -159,12 +203,11 @@ io.on('connection', function(socket){
       if(roomtype == "2Player"){
         roomname = roomtype + (Players2Rooms.length-1);
         socket.join(roomname);
-        // console.log(roomname);
         Players2Rooms[Players2Rooms.length-1].players.push({username: data["username"], usercards: [], socketid: socket.id});
         let playercards = [];
         for(let i = 0; i < CARDNUM; i++){
           playercards.push(Players2Rooms[Players2Rooms.length-1].deck.pop());
-          if(i == CARDNUM){
+          if(i == CARDNUM-1){
            let index = Players2Rooms[Players2Rooms.length-1].players.length - 1;
            Players2Rooms[Players2Rooms.length-1].players[index].usercards = playercards;
           }
@@ -209,6 +252,13 @@ io.on('connection', function(socket){
           Players4Rooms.push({players: [], deck: shuffleArray(JSON.parse(JSON.stringify(AllCards)))});
         }
       }
+      let sql = "UPDATE users SET inGame = TRUE where username = ?";
+      let username = [
+        [data["username"]]
+      ];
+      con.query(sql, [username], function(err,result){
+        if (err) throw err;
+      })
      
     });
 
@@ -265,18 +315,6 @@ io.on('connection', function(socket){
     })
 
     socket.on("changeWildColor",function(data){
-      // let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      // if(parseInt(data["roomtype"]) === 2){
-      //   socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
-      //   if(data["mustDraw"]){
-      //     socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
-      //   }
-      // }else if(parseInt(data["roomtype"]) === 3){
-      //   socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
-      //   if(data["mustDraw"]){
-      //     socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
-      //   }
-      // }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
         if(data["mustDraw"]){
           socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
@@ -285,12 +323,6 @@ io.on('connection', function(socket){
     })
 
     socket.on("UNOfail",function(data){
-      // let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      // if(parseInt(data["roomtype"]) === 2){
-      //   socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
-      // }else if(parseInt(data["roomtype"]) === 3){
-      //   socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
-      // }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
       // }
     });
@@ -313,25 +345,11 @@ io.on('connection', function(socket){
     })
 
     socket.on("UNOdeclared",function(data){
-      // let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      // if(parseInt(data["roomtype"]) === 2){
-      //   socket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
-      // }else if(parseInt(data["roomtype"]) === 3){
-      //   ssocket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
-      // }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("setUNOdeclared",{UNOdec: data["UNOdec"]});
-      // }
     })
 
     socket.on("GameOver",function(data){
-      // let roomindex = parseInt(data["roomname"].substring(1).replace( /^\D+/g, ''));
-      // if(parseInt(data["roomtype"]) === 2){
-      //   socket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
-      // }else if(parseInt(data["roomtype"]) === 3){
-      //   ssocket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
-      // }else if(parseInt(data["roomtype"]) === 4){
         socket.to(data["roomname"]).emit("setWinner",{winner: data["winner"]});
-      // }
     })
 
     socket.on("UpdateWinCount",function(data){

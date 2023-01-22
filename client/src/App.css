@@ -456,6 +456,40 @@ body{
  
 }
 
+/* .trashpile{
+  position: absolute;
+  left: 50%;
+}
+
+.trashcard{
+  position: absolute;
+  border: 1px solid black;
+  border-radius: 10px;
+  height: 110px;
+  top: 248px;
+  right: 30px;}
+
+.trashcard:nth-child(2){
+  transform: rotate(20deg);
+}
+.trashcard:nth-child(3){
+  transform: rotate(-20deg);
+ 
+}
+
+.DeckHolder{
+ position: absolute;
+ left: 50%;
+}
+
+.Deck{
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: max-content;
+  top: 230px;
+}*/
+
 .DeckHolder{
  position: absolute;
 }
