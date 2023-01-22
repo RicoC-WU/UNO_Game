@@ -47,7 +47,6 @@ class Game extends Component {
         const socket = this.props.socket;
         window.sessionStorage.removeItem("joining");
         if(this.state.currentUser === null || this.state.joinGame === null){
-            // window.sessionStorage.removeItem("joining");
             window.location.assign('/');
         }
         socket.emit("joinroom",{username: this.state.currentUser, roomtype: this.state.joinGame});
@@ -55,19 +54,17 @@ class Game extends Component {
             self.setState({
                 UserCards: data["cards"]
             },()=>{
-                // console.log(self.state.UserCards);
             })
         })
         socket.on("startGame",function(data){
             let AllUsers = data["players"];
-            // console.log(AllUsers);
             let ShiftUsers = []
             let index = AllUsers.indexOf(AllUsers.find(Player => Player.username === window.sessionStorage.getItem("UserLogged")));
             let trash = [];
             let Deck = data["cards"];
             trash.push(Deck[Deck.length-1]);
             Deck.splice(Deck.length-1,1);
-            // console.log(index);
+
             self.setState({
                 Deck: Deck,
                 trash: trash,
@@ -75,9 +72,6 @@ class Game extends Component {
                 RoomType: data["RoomName"][0],
                 order: index
             }, ()=>{
-                // console.log(self.state.RoomType)
-                // console.log("Deck:")
-                // console.log(self.state.Deck);
                 for(let i = 0; i < AllUsers.length; i++){
                     ShiftUsers.push(AllUsers[index]);
                     if(index+1 === AllUsers.length){
@@ -86,7 +80,6 @@ class Game extends Component {
                         index++;
                     }
                 }
-                // console.log(ShiftUsers);
                 self.setState({
                     OrrUsers: AllUsers,
                     AllUsers: ShiftUsers,
@@ -95,9 +88,6 @@ class Game extends Component {
                 },()=>{
                     if(self.state.currTurn === self.state.currentUser){
                         self.handlePlayableCheck(self);
-                        // self.setState({
-                        //     deckDisabled: true
-                        // })
                     }
                 })
             })            
@@ -164,7 +154,6 @@ class Game extends Component {
                 self.setState({
                     OrrUsers: players,
                     AllUsers: ShiftUsers,
-                    // currpile: data["currpile"]
                 })
             })
         })
@@ -177,17 +166,12 @@ class Game extends Component {
             self.setState({
                 currTurn: data["currTurn"],
                 Deck: data["Deck"],
-                drawTurn: false,
-                // UNOdec: ''
+                drawTurn: false
             },()=>{
-                // if(self.state.Deck.length === 0){
                 if(self.state.currTurn === self.state.currentUser){
                     self.handlePlayableCheck(self);
-                    // self.setState({
-                    //     deckDisabled: false
-                    // })
+
                 }
-                // }
     
                 for(let i = 0; i < players.length; i++){
                     ShiftUsers.push(players[index]);
@@ -199,8 +183,7 @@ class Game extends Component {
                 }    
                 self.setState({
                     OrrUsers: players,
-                    AllUsers: ShiftUsers,
-                    // currpile: data["currpile"]
+                    AllUsers: ShiftUsers
                 })
             })
         })
@@ -221,9 +204,6 @@ class Game extends Component {
                 currpile: data["currpile"]
             },()=>{
                 if(self.state.currTurn === self.state.currentUser){ 
-                    // self.setState({
-                    //     deckDisabled: false
-                    // })
                     self.handlePlayableCheck(self);
                 }
             })
@@ -245,7 +225,6 @@ class Game extends Component {
         })
 
         socket.on("penalizeOpponent",function(data){
-            // let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
             let penaltyind = self.state.OrrUsers.indexOf(self.state.OrrUsers.find(Player => Player.username === data["penaltyuser"]));
             console.log(self.state.OrrUsers[penaltyind]);
             // if(self.state.currTurn === self.state.currentUser){
@@ -286,7 +265,6 @@ class Game extends Component {
                 self.setState({
                     OrrUsers: players,
                     AllUsers: ShiftUsers,
-                    // currpile: data["currpile"]
                 })
             })
         })
@@ -306,6 +284,9 @@ class Game extends Component {
         })
 
         socket.on("PlayerLeft",function(data){
+            if(self.state.winner !== ''){
+                return;
+            }
             alert("A player as left the game. Redirecting...");
             setTimeout(function(){
                 window.location.assign("/");
@@ -324,8 +305,6 @@ class Game extends Component {
 
         const self = this;
         let cards = Array.from(document.querySelectorAll('[id^="YourCards"]'));
-        // console.log(cards);
-        
 
         if(event.target.style.border === "2.5px solid orange"){
             event.target.style.border = "2px solid black";
@@ -353,14 +332,10 @@ class Game extends Component {
     handleDealCard(event){
         const socket = this.props.socket;
         let selectedcard = document.getElementsByClassName("selected")[0];
-        // console.log("selected:");
-        // console.log(selectedcard);
         let trashcards = document.getElementsByClassName("trashcard");
         let cards = Array.from(document.querySelectorAll('[id^="YourCards"]'));
-        // console.log(selectedcard);
         let index = Array.from(cards).indexOf(selectedcard);
         let currcard = this.state.UserCards[index];
-        //let wildstatus = currcard.WildStatus;
         let playerindex = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currentUser));
         let OrrUsers = this.state.OrrUsers;
         let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
@@ -406,26 +381,17 @@ class Game extends Component {
                     }
                 }
             }
-        // }
 
-        
-        // console.log(this.state.UserCards[index]);
         let UserCards = this.state.UserCards;
         let trash = this.state.trash;
         let currpile = this.state.currpile;
         let tr_index = this.state.tr_index;
-        // console.log(currpile);
-        // console.log(tr_index);
     
         trash.push(this.state.UserCards[index])
         currpile[tr_index] = this.state.UserCards[index];
 
-        // if(trashcards.length > 0){
             for(let i = 0; i < trashcards.length; i++){
-                // if(trashcards[i]){
-                // console.log(trashcards[i].style.zIndex);
                 trashcards[i].style.zIndex = 0;
-                // }
             }
             if(trashcards.length === 3){
                 if(trashcards[tr_index]){
@@ -447,7 +413,6 @@ class Game extends Component {
                     }
                 }
             }
-        // }
 
         tr_index = tr_index + 1;
 
@@ -463,13 +428,11 @@ class Game extends Component {
 
         this.setState({
             OrrUsers: OrrUsers,
-            // currTurn: OrrUsers[currind].username,
             wildColor: '',
             UserCards: UserCards,
             trash: trash,
             currpile: currpile,
-            tr_index: tr_index,
-            // UNOdec: ''
+            tr_index: tr_index
         },()=>{
             if(this.state.UserCards.length === 0){
                 this.setState({
@@ -509,9 +472,6 @@ class Game extends Component {
                         currTurn: OrrUsers[currind].username
                     },()=>{
                         if(this.state.currTurn === this.state.currentUser){
-                            // this.setState({
-                            //     deckDisabled: false
-                            // })
                             this.handlePlayableCheck(this);
                         }
                         socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
@@ -634,7 +594,7 @@ class Game extends Component {
         if(tr_index < 0){
             tr_index = 2;
         }
-        
+
         if(color === "Red"){
             if(!this.state.trash[this.state.trash.length-1].DrawStatus){
                 currpile[tr_index].Title = "WildRed.png"
