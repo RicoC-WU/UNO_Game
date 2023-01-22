@@ -861,6 +861,10 @@ class Game extends Component {
                 {this.state.currTurn === '' ? 
                 <>
                     WAITING
+                    <div className="blankspace"></div>
+                    <div className="blankspace"></div>
+                    <div className="blankspace"></div>
+                    <div className="blankspace"></div>
                 </> 
                 : 
                 <>

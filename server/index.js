@@ -165,11 +165,13 @@ io.on('connection', function(socket){
           Username = Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
           if(Players3Rooms[roomindex].players.length !== THREEPLAYERS){
             Players3Rooms.slice(roomindex,1);
+            Players3Rooms[roomindex].players.splice(playerindex,1);
           }
         }else if(roomtype === '4'){
           Username = Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
           if(Players4Rooms[roomindex].players.length !== FOURPLAYERS){
             Players4Rooms.slice(roomindex,1);
+            Players4Rooms[roomindex].players.splice(playerindex,1);
           }
         }
         let UserQuery = [
