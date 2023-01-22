@@ -64,7 +64,6 @@ class SignUpForm extends Component {
                     <br/><br/>
                     <div id="SignUpState">{this.state.SignUpState}</div>
                     <a href='/'> Back Home </a>
-                    {/* <br/> <a href='homepage.php'> Back To Home </a> */}
                 </>
                 :
                 <></>
