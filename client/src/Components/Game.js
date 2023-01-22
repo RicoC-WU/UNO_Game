@@ -217,7 +217,8 @@ class Game extends Component {
         socket.on("setWildColor",function(data){
             self.setState({
                 currTurn: data["currTurn"],
-                wildColor: data["wildColor"]
+                wildColor: data["wildColor"],
+                currpile: data["currpile"]
             },()=>{
                 if(self.state.currTurn === self.state.currentUser){ 
                     // self.setState({
@@ -474,6 +475,9 @@ class Game extends Component {
                 this.setState({
                     winner: this.state.currentUser
                 },()=>{
+                    socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
+                    trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, 
+                    reverse: this.state.reverse, mustDraw: false})
                     socket.emit("GameOver", {winner: this.state.winner, roomtype: this.state.RoomType, roomname: this.state.RoomName})
                     socket.emit("UpdateWinCount",{user: this.state.currentUser})
                 })
@@ -488,10 +492,6 @@ class Game extends Component {
                     socket.emit("userplaycard",{OrrUsers: this.state.OrrUsers, roomtype: this.state.RoomType, roomname: this.state.RoomName,
                     trash: this.state.trash, currpile: this.state.currpile, tr_index: this.state.tr_index, currTurn: this.state.currTurn, 
                     reverse: this.state.reverse, mustDraw: false})
-                    // if(this.state.UserCards.length === 1 && !this.state.UNOdec){
-                    //     console.log("NOOOOOOOOOOOOOOOOOOOOOOO")
-                    //     socket.emit("UNOfail", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, user: this.state.currentUser})
-                    // }
                 }else if(currcard.SkipStatus || (currcard.ReverseStatus && this.state.OrrUsers.length === 2)){
                     if(!this.state.reverse){
                         currind = currind + 2;
@@ -629,6 +629,41 @@ class Game extends Component {
     handleWildCard(color){ 
         const socket = this.props.socket;
         let currind = this.state.OrrUsers.indexOf(this.state.OrrUsers.find(Player => Player.username === this.state.currTurn));
+        let currpile = this.state.currpile;
+        let tr_index = this.state.tr_index-1;
+        if(tr_index < 0){
+            tr_index = 2;
+        }
+        
+        if(color === "Red"){
+            if(!this.state.trash[this.state.trash.length-1].DrawStatus){
+                currpile[tr_index].Title = "WildRed.png"
+            }else{
+                currpile[tr_index].Title = "Draw4WildRed.png"
+            }
+        }
+        else if(color === "Blue"){
+            if(!this.state.trash[this.state.trash.length-1].DrawStatus){
+                currpile[tr_index].Title = "WildBlue.png"
+            }else{
+                currpile[tr_index].Title = "Draw4WildBlue.png"
+            }
+        }
+        else if(color === "Yellow"){
+            if(!this.state.trash[this.state.trash.length-1].DrawStatus){
+                currpile[tr_index].Title = "WildYellow.png"
+            }else{
+                currpile[tr_index].Title = "Draw4WildYellow.png"
+            }
+        }
+        else if(color === "Green"){
+            if(!this.state.trash[this.state.trash.length-1].DrawStatus){
+                currpile[tr_index].Title = "WildGreen.png"
+            }else{
+                currpile[tr_index].Title = "Draw4WildGreen.png"
+            }
+        }                                            
+        
 
         if(!this.state.reverse){
             currind = currind + 1;
@@ -646,6 +681,7 @@ class Game extends Component {
             deckDisabled: true,
             selDisabled: true,
             currTurn: this.state.OrrUsers[currind].username,
+            currpile: currpile,
             wildColor: color
         },()=>{
             document.getElementsByClassName("cover")[0].style.display = "none";
@@ -659,9 +695,9 @@ class Game extends Component {
             }
             if(this.state.trash[this.state.trash.length-1].DrawStatus){
                 this.setState({drawTurn: true});
-                socket.emit("changeWildColor", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, wildColor: this.state.wildColor, mustDraw: true})    
+                socket.emit("changeWildColor", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, wildColor: this.state.wildColor, currpile: this.state.currpile, mustDraw: true})    
             }else{
-                socket.emit("changeWildColor", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, wildColor: this.state.wildColor, mustDraw: false})
+                socket.emit("changeWildColor", {roomtype: this.state.RoomType, roomname: this.state.RoomName, currTurn: this.state.currTurn, wildColor: this.state.wildColor, currpile: this.state.currpile, mustDraw: false})
             }
         })
         

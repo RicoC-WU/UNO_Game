@@ -43,7 +43,8 @@ let AllCards = [];
 
 for(var i = 0; i < cardFiles.length; i++){
   let currCard = cardFiles[i];
-  if(['UNOdefault.png','CustomCard.png','AllUnoCards.png',"test.css"].includes(currCard)){
+  if(['UNOdefault.png','CustomCard.png','AllUnoCards.png',"test.css","Draw4WildRed.png","Draw4WildBlue.png",
+  "Draw4WildGreen.png","Draw4WildYellow.png","WildBlue.png","WildRed.png","WildGreen.png","WildYellow.png"].includes(currCard)){
     continue;
   }
   let title = currCard;
@@ -60,7 +61,7 @@ for(var i = 0; i < cardFiles.length; i++){
     for(var j = 0; j < 4; j++){
       AllCards.push(new Card(title,val,color,wildstatus,drawstatus,reversestatus,skipstatus));
     }
-  }else if(val == 0 || wildstatus){
+  }else if(val == 0){
     AllCards.push(new Card(title,val,color,wildstatus,drawstatus,reversestatus,skipstatus));
   }else{
     AllCards.push(new Card(title,val,color,wildstatus,drawstatus,reversestatus,skipstatus));
@@ -162,17 +163,17 @@ io.on('connection', function(socket){
           playerindex = Players2Rooms[roomindex].players.indexOf(Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id));
           Players2Rooms[roomindex].players.splice(playerindex,1);
         }else if(roomtype === '3'){
-          Username = Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
-          if(Players3Rooms[roomindex].players.length !== THREEPLAYERS){
+          Username = Players3Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
+          // if(Players3Rooms[roomindex].players.length !== THREEPLAYERS){
             Players3Rooms.slice(roomindex,1);
             Players3Rooms[roomindex].players.splice(playerindex,1);
-          }
+          // }
         }else if(roomtype === '4'){
-          Username = Players2Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
-          if(Players4Rooms[roomindex].players.length !== FOURPLAYERS){
+          Username = Players4Rooms[roomindex].players.find(Player => Player.socketid === socket.id).username;
+          // if(Players4Rooms[roomindex].players.length !== FOURPLAYERS){
             Players4Rooms.slice(roomindex,1);
             Players4Rooms[roomindex].players.splice(playerindex,1);
-          }
+          // }
         }
         let UserQuery = [
           [Username]
@@ -317,7 +318,7 @@ io.on('connection', function(socket){
     })
 
     socket.on("changeWildColor",function(data){
-        socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"]});
+        socket.to(data["roomname"]).emit("setWildColor",{currTurn: data["currTurn"], wildColor: data["wildColor"], currpile: data["currpile"]});
         if(data["mustDraw"]){
           socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
         }
