@@ -1,5 +1,5 @@
 # UNO_Game
-An online game of UNO (not finished - work in progress)
+An online game of UNO (mostly finished besides small things)
 
 LINK TO WEBSITE: rockjc01.hopto.org
 
