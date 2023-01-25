@@ -14,18 +14,43 @@ class SignUpForm extends Component {
         if(window.sessionStorage.getItem("UserLogged") !== null){
             window.location.assign("/");
         }
-        var self = this;
+        const self = this;
         const socket = this.props.socket;
         socket.on("LoginSuccess",function(data){
-            console.log('LETS GOOO, YOU REGISTERED!');
             window.sessionStorage.setItem("UserLogged",data["username"]);
             window.location.assign("/");
         })
         socket.on("UserAlreadyExists",function(){
-            console.log("NOOOOOOOO, THIS USER EXISTS!");
             self.setState({
                 SignUpState: "NOOOOOOOO, THIS USER EXISTS!"
             })
+        })
+
+        socket.on("UsernameTooShort",function(data){
+            self.setState({
+                SignUpState:  self.state.SignUpState + "Please enter a username that is at least 5 characters"
+            })
+        })
+
+        socket.on("PasswordTooShort",function(data){
+            self.setState({
+                SignUpState: self.state.SignUpState  + `${"\n"}Please enter a password that is at least 8 characters`
+            })
+        })
+
+        socket.on("DetailsTooShort",function(data){
+            self.setState({
+                SignUpState: "Please enter a username that is at least 5 characters and password that is at least 8 characters"
+            })
+        })
+
+        const SignUpField = document.getElementById("NewUsername");
+        SignUpField.addEventListener('keypress',function(event){
+            let regex = /^[^!-,./:-@[-^`{-~]+$/;
+            let key = event.key;
+            if(!regex.test(key) || key === " "){
+                event.preventDefault();
+            }   
         })
     }
 
@@ -38,6 +63,13 @@ class SignUpForm extends Component {
         const newUser = document.getElementById("NewUsername").value;
         const newUserPass =  document.getElementById("NewPassword").value;
         const confirm =  document.getElementById("NewPasswordConfirm").value;
+        let regex = /^(?=.*[a-zA-Z].*[a-zA-Z].*[a-zA-Z]).*$/;
+        if(!regex.test(newUser)){
+            self.setState({
+                SignUpState: "Please have at least 3 letters in your username"
+            })
+            return;
+        }
         if(newUserPass === confirm){
             socket.emit("RegisterUser",{username: newUser, password: newUserPass});
         }else{

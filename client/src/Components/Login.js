@@ -16,25 +16,30 @@ class LoginForm extends Component {
         if(this.state.UserLogged !== null){
             window.location.assign("/");
         }
-        var self = this;
+        const self = this;
         const socket = this.props.socket;
         socket.on("LoginSuccess",function(data){
-            console.log('WE LOGGED IN!');
             window.sessionStorage.setItem("UserLogged",data["username"]);
             window.location.assign("/");
         });
         socket.on("LoginFailure",function(){
-            console.log("NOOOOOOOO WRONG PASSWORD");
             self.setState({
                 LoginState: "NOOOOOOOO WRONG PASSWORD"         
             })
         });
         socket.on("NoUser",function(){
-            console.log("AWW MAN THIS USER DOESN'T EXIST");
              self.setState({
                 LoginState: "AWW MAN THIS USER DOESN'T EXIST"
             })
         });
+
+        const Userfield = document.getElementById("LoginUser");
+        Userfield.addEventListener('keypress',function(event){
+            let key = event.key;
+            if(key === " "){
+                event.preventDefault();
+            }
+        })
     }
 
     handleLoginQuery(){

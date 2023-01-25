@@ -89,7 +89,8 @@ async function hashPassword(sql,socket,username,textPass){
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(textPass, salt);
     let values = [[username,hashedPassword]];
-    con.query(sql,[values],function(err,result){
+    let sql2 = mysql.format(sql,values);
+    con.query(sql2,function(err,result){
       if(err) throw err
       socket.emit("LoginSuccess", {username: username});
     })
@@ -120,13 +121,26 @@ io.on('connection', function(socket){
     socket.emit("printSocket", {socketid: socket.id});
 
     socket.on("RegisterUser",function(data){
+      if(data["username"].length < 3 && data["password"].length < 8){
+        socket.emit("DetailsTooShort");
+        return;
+      }
+      else if(data["username"].length < 3){
+        socket.emit("UsernameTooShort");
+        return;
+      }
+      else if(data["password"].length < 8){
+        socket.emit("PasswordTooShort");
+        return;
+      }
+
       let search = "SELECT username FROM users WHERE username = " + mysql.escape(data['username']);
       let rowcount;
       con.query(search, function(err, result){
         if(err) throw err;
         rowcount = result.length;
         if(rowcount == 0){
-          let sql = 'INSERT INTO users (username, password) VALUES ?';
+          let sql = 'INSERT INTO users (username, password) VALUES (?)';
           hashPassword(sql,socket,data["username"],data["password"]);
         }else{
           socket.emit("UserAlreadyExists");
@@ -141,7 +155,8 @@ io.on('connection', function(socket){
       let username = [
         [data["username"]]
       ];
-      con.query(sql, [username], function(err,result){
+      sql = mysql.format(sql,username);
+      con.query(sql, function(err,result){
         if (err) throw err;
         UserInfo = result;
         comparePassword(socket,UserInfo,data['username'],data["password"]);
@@ -175,7 +190,8 @@ io.on('connection', function(socket){
           [Username]
         ];
         let sql = "UPDATE users SET inGame = FALSE where username = ?"
-        con.query(sql, [UserQuery], function(err,result){
+        sql = mysql.format(sql, UserQuery)
+        con.query(sql, function(err,result){
           if (err) throw err;
         })
     });
@@ -185,7 +201,8 @@ io.on('connection', function(socket){
       let username = [
         [data["username"]]
       ];
-      con.query(sql, [username], function(err,result){
+      sql = mysql.format(sql, username);
+      con.query(sql, function(err,result){
         if (err) throw err;
         let inGame = result[0].inGame;
         if(inGame === 1){
@@ -255,7 +272,8 @@ io.on('connection', function(socket){
       let username = [
         [data["username"]]
       ];
-      con.query(sql, [username], function(err,result){
+      sql = mysql.format(sql,username);
+      con.query(sql, function(err,result){
         if (err) throw err;
       })
      
@@ -318,12 +336,10 @@ io.on('connection', function(socket){
         if(data["mustDraw"]){
           socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
         }
-      // }
     })
 
     socket.on("UNOfail",function(data){
         socket.to(data["roomname"]).emit("penalizeOpponent",{currTurn: data["currTurn"],penaltyuser: data["user"]});
-      // }
     });
 
     socket.on("penalizeuser",function(data){
@@ -356,8 +372,9 @@ io.on('connection', function(socket){
       let username = [
         [data["user"]]
       ];
+      sql = mysql.format(sql,username);
       let id;
-      con.query(sql, [username], function(err,result){
+      con.query(sql, function(err,result){
         if (err) throw err;
         id = result[0].id;
         let sql2 = "UPDATE users SET wins = wins + 1 WHERE id = " + id;
@@ -373,7 +390,8 @@ io.on('connection', function(socket){
         [data["user"]]
       ];
       let id;
-      con.query(sql, [username], function(err,result){
+      sql = mysql.format(sql,username);
+      con.query(sql, function(err,result){
         if (err) throw err;
         id = result[0].id;
         let sql2 = "UPDATE users SET losses = losses + 1 WHERE id = " + id;
