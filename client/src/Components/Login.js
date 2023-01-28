@@ -35,8 +35,9 @@ class LoginForm extends Component {
 
         const Userfield = document.getElementById("LoginUser");
         Userfield.addEventListener('keypress',function(event){
+            let regex = /^[^!-,./:-@[-^`{-~]+$/;
             let key = event.key;
-            if(key === " "){
+            if(!regex.test(key) || key === " "){
                 event.preventDefault();
             }
         })

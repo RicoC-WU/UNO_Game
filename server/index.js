@@ -289,7 +289,7 @@ io.on('connection', function(socket){
         }
       }else if(parseInt(data["roomtype"]) === THREEPLAYERS){
         Players3Rooms[roomindex].players = data["OrrUsers"];
-        socket.to(data["roomname"]).emit("getroundinfo",{players: Players3rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]});
+        socket.to(data["roomname"]).emit("getroundinfo",{players: Players3Rooms[roomindex].players, /*Deck: data["Deck"],*/ trash: data["trash"], currpile: data["currpile"], tr_index: data["tr_index"], currTurn: data["currTurn"], reverse: data["reverse"]});
         if(data["mustDraw"]){
           socket.to(data["roomname"]).emit("setDraw",{currTurn: data["currTurn"]});
         }
@@ -399,6 +399,18 @@ io.on('connection', function(socket){
           if(err) throw err;
         })
       })
+    })
+
+    socket.on("trychallenge",function(data){
+      socket.to(data["roomname"]).emit("dochallenge",{challengeuser: data["challengeuser"]})
+    })
+
+    socket.on("challengeresponse",function(data){
+      socket.to(data["roomname"]).emit("endchallenge",{challengeuser: data["challengeuser"], challengestate: data["challengestate"]})
+    })
+
+    socket.on("contgame",function(data){
+      socket.to(data["roomname"]).emit("endchallengedraw")
     })
 
 });

@@ -34,7 +34,7 @@ class SignUpForm extends Component {
 
         socket.on("PasswordTooShort",function(data){
             self.setState({
-                SignUpState: self.state.SignUpState  + `${"\n"}Please enter a password that is at least 8 characters`
+                SignUpState: self.state.SignUpState + "Please enter a password that is at least 8 characters"
             })
         })
 
