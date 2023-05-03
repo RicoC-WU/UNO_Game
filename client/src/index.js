@@ -8,6 +8,7 @@ import io from 'socket.io-client'
 // let socket = io('http://localhost:3456');
 let socket;
 
+//checks for the specific origin that a user is coming from and sets the socket to connect to that origin
 let ip = window.location.hostname;
 if (ip.startsWith('192.168.')) {
   socket = io("http://192.168.1.238");
@@ -19,9 +20,7 @@ if (ip.startsWith('192.168.')) {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  // <React.StrictMode>
-    <App socket={socket}/>
-  // </React.StrictMode>
+  <App socket={socket}/>  //passes in the socket as a prop to the App component
 );
 
 // If you want to start measuring performance in your app, pass a function
