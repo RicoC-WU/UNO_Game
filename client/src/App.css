@@ -248,7 +248,7 @@ body{
     font-size: 60px;
   }
   .play_btn{
-    margin-top: 80px;
+    margin-top: 0px;
     margin-left: 100px;
     font-size: 60px;
   }
@@ -271,7 +271,7 @@ body{
     position: absolute;
     right: 0;
     bottom: 30px;
-    font-size: 18px;
+    font-size: 14px;
   }
   .interact .iconContainer{
     margin-right: 4px;
@@ -279,7 +279,6 @@ body{
     bottom: 20px;
   }
   .play_btn{
-    margin-top: 45px;
     margin-left: 20px;
     font-size: 40px;
   }
@@ -439,28 +438,6 @@ body{
 
 .trashpile{
   position: absolute;
-}
-
-.trashcard{
-  position: absolute;
-  border: 1px solid black;
-  border-radius: 10px;
-  height: 110px;
-  top: -38px;
-  right: 30px;
-  /* display: none; */
-}
-
-.trashcard:nth-child(2){
-  transform: rotate(20deg);
-}
-.trashcard:nth-child(3){
-  transform: rotate(-20deg);
- 
-}
-
-/* .trashpile{
-  position: absolute;
   left: 50%;
 }
 
@@ -470,7 +447,10 @@ body{
   border-radius: 10px;
   height: 110px;
   top: 248px;
-  right: 30px;}
+  /* top: -38px; */
+  right: 30px;
+  /* display: none; */
+}
 
 .trashcard:nth-child(2){
   transform: rotate(20deg);
@@ -491,18 +471,28 @@ body{
   place-items: center;
   width: max-content;
   top: 230px;
-}*/
-
-.DeckHolder{
- position: absolute;
 }
 
-.Deck{
-  display: grid;
-  place-items: center;
-  width: max-content;
-  margin-left: 100px;
-  margin-top: 15px;
+@media screen and (min-width: 650px){
+  .trashpile{
+    position: absolute;
+  }
+  
+  .trashcard{
+    position: absolute;
+    border: 1px solid black;
+    border-radius: 10px;
+    height: 110px;
+    top: -38px;
+    right: 30px;
+    /* display: none; */
+  }
+
+  .Deck, .DeckHolder{
+    top: initial;
+    left: initial;
+    margin-bottom: 113px;
+  }
 }
 
 .DeckCard{
@@ -636,35 +626,6 @@ body{
 .UNObtn:disabled{
   background-color: darkred;
   box-shadow: 0px 6px rgb(98, 2, 2);
-  cursor:not-allowed;
-}
-
-.ChallengeBtnContainer{
-  position: absolute;
-  top: 18%;
-  right: 20%;
-}
-
-.Challengebtn{
-  position: absolute;
-  border-radius: 50%;
-  border: none;
-  color: white;
-  padding: 30px;
-  text-align: center;
-  font-size: 20px;
-  cursor: pointer;
-  background-color: green;
-  box-shadow: 0px 6px darkgreen;
-}
-.Challengebtn:enabled:active, .Penaltybtn:enabled:active{
-  transform: translateY(4px);
-  box-shadow: 0px 2px darkgreen;
-}
-
-.Challengebtn:disabled{
-  background-color: darkgreen;
-  box-shadow: 0px 6px rgb(0, 77, 0);
   cursor:not-allowed;
 }
 
