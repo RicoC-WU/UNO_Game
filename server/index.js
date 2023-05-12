@@ -4,6 +4,7 @@ const express = require('express');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const Connection = require("mysql/lib/Connection");
 
 //constants
 const PORT = process.env.PORT || 3456;
@@ -11,12 +12,14 @@ const CARDNUM = 7;
 const TWOPLAYERS = 2; const THREEPLAYERS = 3; const FOURPLAYERS = 4;
 
 //Connect to MariaDB database (using MySQL library)
-var con = mysql.createConnection({
+var SQL_CONNECT = {
   host: "127.0.0.1",
   user: "root",
   password: "UnoGameProjectPass",
   database: "UNO_Game"
-});
+};
+
+var con;
 
 //socket connection, there are 4 valid origins
 const io = require("socket.io")(http, {
@@ -26,6 +29,39 @@ const io = require("socket.io")(http, {
     methods: ["GET","POST"],
   }
 });
+
+//handleDisconnect() --> Keeps the connection to the SQL server alive in case of 
+//a connection reset (source: https://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection,
+//posted by user CloudyMarble)
+function handleDisconnect(){
+  console.log("handling connection")
+  con = mysql.createConnection(SQL_CONNECT);
+
+  con.connect(function(err){
+    if(err){
+      console.log('error when connection to SQL database:',err);
+      setTimeout(handleDisconnect, 2000);
+    }
+  });
+
+  con.on('error',function(err){
+    console.log('SQL connection error', err);
+    if(err.code === "PROTOCOL_CONNECTION_LOST"){
+      handleDisconnect();
+    } else if (err.code === 'ECONNRESET') {
+      console.log('Connection reset, attempting to reconnect...');
+      handleDisconnect();
+    } else if(err.code === "PROTOCOL_PACKETS_OUT_OF_ORDER"){
+      handleDisconnect();
+    }else if (err.code === "ECONNREFUSED"){
+      handleDisconnect();
+    }else{
+      throw err;
+    }
+  });
+}
+
+handleDisconnect();
 
 //Pulling all the card png files to use in the game
 const folder = '../client/public/Cards';
