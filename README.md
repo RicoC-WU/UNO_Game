@@ -1,7 +1,7 @@
 # UNO_Game
 An online game of UNO
 
-LINK TO WEBSITE: rockjc01.hopto.org
+LINK TO WEBSITE: rockjc01.ddns.net
 
 WEB SERVER SETUP:
 
